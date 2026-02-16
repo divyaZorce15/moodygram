@@ -737,7 +737,7 @@ export default function HomeScreen() {
           />
 
           {/* Modal */}
-          <div className="relative z-10 w-full max-w-md rounded-3xl bg-white px-8 py-7 shadow-xl">
+          <div className="relative z-10 w-full max-w-md rounded-3xl bg-white px-4 sm:px-8 py-7 shadow-xl mx-3 sm:mx-auto">
             
             {/* Close */}
             <button
