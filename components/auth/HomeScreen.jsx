@@ -218,15 +218,20 @@ export default function HomeScreen() {
     }
   };
 
- 
+  
   const signInWithGoogle = async () => {
     setGoogleLoading(true);
     setError("");
+
+    await client.auth.signOut(); 
 
     const { error } = await client.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
+        queryParams: {
+          prompt: "select_account",
+        },
       },
     });
 
@@ -235,6 +240,7 @@ export default function HomeScreen() {
       setGoogleLoading(false);
     }
   };
+
 
   const sendEmailOtp = async () => {
     if (!email) return;
@@ -828,6 +834,36 @@ export default function HomeScreen() {
               </div>
             )}
 
+            {loginMethod === "phone" && step === "phone" && (
+              <div className="mt-6">
+                <label className="mb-2 block text-sm font-medium text-zinc-700">
+                  Phone number
+                </label>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="tel"
+                    placeholder="Enter phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600"
+                  />
+
+                  <button
+                    onClick={sendPhoneOtp}
+                    disabled={loading}
+                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white"
+                  >
+                    {loading ? "Sending..." : "Send OTP"}
+                  </button>
+                </div>
+
+                {error && (
+                  <p className="mt-2 text-sm text-red-500">{error}</p>
+                )}
+              </div>
+            )}
+
             {/* ================= Email OTP STEP ================= */}
             {loginMethod === "email" &&  step === "otp" && (
               <div className="mt-6">
@@ -873,36 +909,6 @@ export default function HomeScreen() {
               </div>
             )}
 
-            {loginMethod === "phone" && step === "phone" && (
-              <div className="mt-6">
-                <label className="mb-2 block text-sm font-medium text-zinc-700">
-                  Phone number
-                </label>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="tel"
-                    placeholder="Enter phone number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600"
-                  />
-
-                  <button
-                    onClick={sendPhoneOtp}
-                    disabled={loading}
-                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white"
-                  >
-                    {loading ? "Sending..." : "Send OTP"}
-                  </button>
-                </div>
-
-                {error && (
-                  <p className="mt-2 text-sm text-red-500">{error}</p>
-                )}
-              </div>
-            )}
-
             {loginMethod === "phone" && step === "phone-otp" && (
               <div className="mt-6">
                 <label className="mb-2 block text-sm font-medium text-zinc-700">
@@ -943,7 +949,9 @@ export default function HomeScreen() {
               </div>
             )}
 
-            {/* Divider */}
+            {step === "email" && (
+              <>
+                {/* Divider */}
                 <div className="my-6 flex items-center gap-4">
                   <div className="h-px flex-1 bg-zinc-200" />
                   <span className="text-sm text-zinc-400">or</span>
@@ -959,7 +967,8 @@ export default function HomeScreen() {
                     <MailIcon size={18} />
                     {googleLoading ? "Redirecting..." : "Continue with Google"}
                   </button>
-
+                </>
+              )}
           </div>
         </div>
       )}
