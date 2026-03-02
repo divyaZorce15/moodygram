@@ -18,7 +18,10 @@ import {
   MailIcon,
 } from "lucide-react";
 
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Calendar } from "lucide-react";
+import { forwardRef } from "react";
 
 export default function HomeScreen() {
 
@@ -43,11 +46,26 @@ export default function HomeScreen() {
   const [openFinishSignup, setOpenFinishSignup] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [dob, setDob] = useState("");
+  const [dob, setDob] = useState(null);
   const [showAlmostThere, setShowAlmostThere] = useState(false);
 
   const menuRef = useRef(null);
   const router = useRouter();
+
+  const today = new Date();
+
+  const minDate = new Date(
+    today.getFullYear() - 100,
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const maxDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - 1 
+  );
+
 
   const clearAuthStates = () => {
     setEmail("");
@@ -150,31 +168,34 @@ export default function HomeScreen() {
       setLoading(true);
       setError("");
 
-      // Convert to E.164 format (+91 for India)
       const formattedPhone = phone.startsWith("+")
         ? phone
         : `+91${phone}`;
 
-      const { error } = await client.auth.signInWithOtp({
-        phone: formattedPhone,
-        options: {
-          shouldCreateUser: true, // auto-create user if not exists
+      const response = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ phone: formattedPhone }),
       });
 
-      if (error) {
-        setError(error.message);
+      const data = await response.json();
+      console.log("WhatsApp API Response:", data);
+
+      if (!response.ok) {
+        setError(data.error || "Failed to send OTP");
         return;
       }
 
       setStep("phone-otp");
+
     } catch (err) {
       setError("Failed to send OTP. Try again.");
     } finally {
       setLoading(false);
     }
   };
-
 
   const verifyPhoneOtp = async () => {
     if (!otp || otp.length < 4) {
@@ -186,30 +207,25 @@ export default function HomeScreen() {
       setLoading(true);
       setError("");
 
-      const formattedPhone = phone.startsWith("+")
-        ? phone
-        : `+91${phone}`;
-
-      const { data, error } = await client.auth.verifyOtp({
-        phone: formattedPhone,
-        token: otp,
-        type: "sms",
+      const response = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone, otp }),
       });
 
-      if (error) {
-        setError(error.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Invalid OTP");
         return;
       }
 
-      if (!data || !data.session || !data.user) {
-        setError("Authentication failed");
-        return;
-      }
-
-      await handlePostAuth(data.user);
+      alert("OTP Verified");
 
       setOpenLogin(false);
-      router.replace("/home");
+      router.replace("/");
 
     } catch (err) {
       setError("Verification failed. Try again.");
@@ -217,7 +233,6 @@ export default function HomeScreen() {
       setLoading(false);
     }
   };
-
   
   const signInWithGoogle = async () => {
     setGoogleLoading(true);
@@ -300,18 +315,42 @@ export default function HomeScreen() {
       return;
     }
 
+    // Name must start with capital
+    const nameRegex = /^[A-Z][a-zA-Z]*$/;
+
+    if (!nameRegex.test(firstName)) {
+      setError("First name must start with a capital letter");
+      return;
+    }
+
+    if (!nameRegex.test(lastName)) {
+      setError("Last name must start with a capital letter");
+      return;
+    }
+
+    // 100 year limit validation (extra safety)
+    const today = new Date();
+    const minAllowedDate = new Date(
+      today.getFullYear() - 100,
+      today.getMonth(),
+      today.getDate()
+    );
+
+    if (dob < minAllowedDate) {
+      setError("Age cannot be more than 100 years");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
 
-      // Get session safely
       const {
         data: { session },
         error: sessionError,
       } = await client.auth.getSession();
 
       if (sessionError || !session?.user) {
-        console.log("SESSION ERROR:", sessionError);
         setError("User session not found. Please login again.");
         setLoading(false);
         return;
@@ -319,9 +358,6 @@ export default function HomeScreen() {
 
       const user = session.user;
 
-      console.log("USER ID:", user.id);
-
-      // First check if profile exists
       const { data: existingProfile, error: selectError } =
         await client
           .from("profiles")
@@ -330,13 +366,14 @@ export default function HomeScreen() {
           .maybeSingle();
 
       if (selectError) {
-        console.log("SELECT ERROR:", selectError);
         setError(selectError.message);
         setLoading(false);
         return;
       }
 
-      // If profile does not exist -- insert
+      // Convert to yyyy-mm-dd for database
+      const dbDob = dob.toISOString().split("T")[0];
+
       if (!existingProfile) {
         const { error: insertError } = await client
           .from("profiles")
@@ -344,34 +381,27 @@ export default function HomeScreen() {
             id: user.id,
             first_name: firstName,
             last_name: lastName,
-            dob,
+            dob: dbDob,
             onboarded: true,
             password_set: false,
             role: "traveler",
           });
 
         if (insertError) {
-          console.log("INSERT ERROR:", insertError);
           setError(insertError.message);
           setLoading(false);
           return;
         }
       } else {
-        // Profile exists -- update
-        const { data: updatedData, error: updateError } =
-          await client
-            .from("profiles")
-            .update({
-              first_name: firstName,
-              last_name: lastName,
-              dob,
-              onboarded: true,
-            })
-            .eq("id", user.id)
-            .select();
-
-        console.log("UPDATE RESULT:", updatedData);
-        console.log("UPDATE ERROR:", updateError);
+        const { error: updateError } = await client
+          .from("profiles")
+          .update({
+            first_name: firstName,
+            last_name: lastName,
+            dob: dbDob,
+            onboarded: true,
+          })
+          .eq("id", user.id);
 
         if (updateError) {
           setError(updateError.message);
@@ -380,11 +410,10 @@ export default function HomeScreen() {
         }
       }
 
-      // Success
       setOpenFinishSignup(false);
       setShowAlmostThere(true);
+
     } catch (err) {
-      console.log("UNEXPECTED ERROR:", err);
       setError("Something went wrong");
     } finally {
       setLoading(false);
@@ -751,7 +780,7 @@ export default function HomeScreen() {
                 setOpenLogin(false);
                 clearAuthStates();
               }}
-              className="absolute right-6 top-6 text-zinc-400 hover:text-zinc-600"
+              className="absolute right-6 top-6 text-zinc-400 hover:text-zinc-600 cursor-pointer"
             >
               ✕
             </button>
@@ -768,7 +797,7 @@ export default function HomeScreen() {
                   setLoginMethod("email");
                   setStep("email");
                 }}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium ${
+                className={`flex-1 cursor-pointer rounded-lg py-2 text-sm font-medium ${
                   loginMethod === "email"
                     ? "bg-white shadow"
                     : "text-zinc-500"
@@ -783,7 +812,7 @@ export default function HomeScreen() {
                   setLoginMethod("phone");
                   setStep("phone");
                 }}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium ${
+                className={`flex-1 cursor-pointer rounded-lg py-2 text-sm font-medium ${
                   loginMethod === "phone"
                     ? "bg-white shadow"
                     : "text-zinc-500"
@@ -815,13 +844,13 @@ export default function HomeScreen() {
                       value={email}
                       disabled={step === "otp"}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600"
+                      className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600 cursor-pointer"
                     />
 
                     <button
                       onClick={sendEmailOtp}
                       disabled={loading}
-                      className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white"
+                      className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white cursor-pointer"
                     >
                       {emailLoading ? "Sending..." : "Send OTP"}
                     </button>
@@ -846,13 +875,13 @@ export default function HomeScreen() {
                     placeholder="Enter phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600"
+                    className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600 cursor-pointer"
                   />
 
                   <button
                     onClick={sendPhoneOtp}
                     disabled={loading}
-                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white"
+                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white cursor-pointer"
                   >
                     {loading ? "Sending..." : "Send OTP"}
                   </button>
@@ -867,7 +896,7 @@ export default function HomeScreen() {
             {/* ================= Email OTP STEP ================= */}
             {loginMethod === "email" &&  step === "otp" && (
               <div className="mt-6">
-                <label className="mb-2 block text-sm font-medium text-zinc-700">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 cursor-pointer">
                   Enter OTP
                 </label>
 
@@ -876,7 +905,7 @@ export default function HomeScreen() {
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600"
+                    className="h-11 flex-1 rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600 cursor-pointer"
                   />
                 </div>
 
@@ -891,7 +920,7 @@ export default function HomeScreen() {
                       setOtp("");
                       setError("");
                     }}
-                    className="text-sm text-zinc-500 hover:underline"
+                    className="text-sm text-zinc-500 hover:underline cursor-pointer"
                   >
                     ← Change Email address
                   </button>
@@ -899,7 +928,7 @@ export default function HomeScreen() {
                   <button
                     onClick={verifyEmailOtp}
                     disabled={loading}
-                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 cursor-pointer"
                   >
                     {loading ? "Verifying..." : "Verify"}
                   </button>
@@ -919,7 +948,7 @@ export default function HomeScreen() {
                   type="text"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="h-11 w-full rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600"
+                  className="h-11 w-full rounded-xl border px-4 text-sm outline-none focus:ring-2 focus:ring-green-600 cursor-pointer"
                 />
 
                 {error && (
@@ -941,7 +970,7 @@ export default function HomeScreen() {
                   <button
                     onClick={verifyPhoneOtp}
                     disabled={loading}
-                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white"
+                    className="h-11 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white cursor-pointer"
                   >
                     {loading ? "Verifying..." : "Verify"}
                   </button>
@@ -962,7 +991,7 @@ export default function HomeScreen() {
                   <button
                     onClick={signInWithGoogle}
                     disabled={loading}
-                    className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border text-sm font-medium hover:bg-zinc-50"
+                    className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border text-sm font-medium hover:bg-zinc-50 cursor-pointer"
                   >
                     <MailIcon size={18} />
                     {googleLoading ? "Redirecting..." : "Continue with Google"}
@@ -983,52 +1012,94 @@ export default function HomeScreen() {
           />
 
           {/* Modal */}
-          <div className="relative z-10 w-full max-w-md rounded-3xl bg-white px-4 sm:px-8 py-7 shadow-xl mx-3 sm:mx-auto">
-            <h2 className="text-xl font-semibold mb-1">
-              Finish Signing up
-            </h2>
-            <p className="text-sm text-zinc-500 mb-6">
-              Just a few more details to get started
-            </p>
+          <div className="relative z-10 w-full max-w-md mx-4 sm:mx-auto">
+            <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-zinc-100 cursor-pointer">
+              
+              <h2 className="text-2xl font-semibold text-zinc-900">
+                Finish Signing up
+              </h2>
+              <p className="text-sm text-zinc-500 mt-1 mb-8">
+                Just a few more details to get started
+              </p>
 
-            {/* Name */}
-            <label className="text-sm font-medium">Name</label>
-            <input
-              placeholder="First name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="mt-2 h-11 w-full rounded-xl border px-4"
-            />
-            <input
-              placeholder="Last name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="mt-3 h-11 w-full rounded-xl border px-4"
-            />
+              {/* First Name */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-700">
+                  First Name
+                </label>
+                <input
+                  placeholder="Enter first name"
+                  value={firstName}
+                  onChange={(e) =>
+                    setFirstName(
+                      e.target.value.charAt(0).toUpperCase() +
+                      e.target.value.slice(1)
+                    )
+                  }
+                  className="h-12 w-full rounded-xl border border-zinc-300 px-4 text-sm outline-none focus:ring-2 focus:ring-black focus:border-black transition cursor-pointer"
+                />
+              </div>
+              {/* Last Name */}
+              <div className="space-y-2 mt-5">
+                <label className="text-sm font-medium text-zinc-700">
+                  Last Name
+                </label>
+                <input
+                  placeholder="Enter last name"
+                  value={lastName}
+                  onChange={(e) =>
+                    setLastName(
+                      e.target.value.charAt(0).toUpperCase() +
+                      e.target.value.slice(1)
+                    )
+                  }
+                  className="h-12 w-full rounded-xl border border-zinc-300 px-4 text-sm outline-none focus:ring-2 focus:ring-black focus:border-black transition cursor-pointer"
+                />
+              </div>
+              {/* Date of Birth */}
+              <div className="space-y-2 mt-5">
+                <label className="text-sm font-medium text-zinc-700">
+                  Date of Birth
+                </label>
 
-            {/* DOB */}
-            <label className="mt-6 block text-sm font-medium">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              className="mt-2 h-11 w-full rounded-xl border px-4"
-            />
+                <div className="relative cursor-pointer">
+                  <DatePicker
+                    selected={dob}
+                    onChange={(date) => {
+                      setError("");
+                      setDob(date);
+                    }}
+                    dateFormat="dd/MM/yyyy"
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={100}
+                    placeholderText="Select your date of birth"
+                    className="h-12 w-[170%] rounded-xl border border-zinc-300 px-4 pr-12 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+                  />
 
-            {error && (
-              <p className="mt-3 text-sm text-red-500">{error}</p>
-            )}
+                  {/* Calendar Icon */}
+                  <Calendar
+                    size={18}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none cursor-pointer"
+                  />
+                </div>
+              </div>
+              {error && (
+                <p className="mt-3 text-sm text-red-500">{error}</p>
+              )}
 
-            <button
-              onClick={submitFinishSignup}
-              disabled={loading}
-              className="mt-8 h-12 w-full rounded-xl bg-black text-white font-medium disabled:opacity-60"
-            >
-              {loading ? "Saving..." : "Continue"}
-            </button>
+              <button
+                onClick={submitFinishSignup}
+                disabled={loading}
+                className="mt-8 h-12 w-full rounded-xl bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 cursor-pointer"
+              >
+                {loading ? "Saving..." : "Continue"}
+              </button>
+            </div>
           </div>
+
         </div>
       )}
 
@@ -1050,7 +1121,7 @@ export default function HomeScreen() {
             <input
               value={email}
               disabled
-              className="mt-2 h-11 w-full rounded-xl border px-4 bg-gray-100"
+              className="mt-2 h-11 w-full rounded-xl border px-4 bg-gray-100 cursor-pointer"
             />
 
             <label className="mt-4 block text-sm font-medium">
@@ -1061,7 +1132,7 @@ export default function HomeScreen() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 h-11 w-full rounded-xl border px-4"
+              className="mt-2 h-11 w-full rounded-xl border px-4 cursor-pointer"
             />
 
             {error && (
@@ -1070,7 +1141,7 @@ export default function HomeScreen() {
 
             <button
               onClick={handleContinue}
-              className="mt-6 h-12 w-full rounded-xl bg-black text-white font-medium"
+              className="mt-6 h-12 w-full rounded-xl bg-black text-white font-medium cursor-pointer"
             >
               Continue
             </button>
