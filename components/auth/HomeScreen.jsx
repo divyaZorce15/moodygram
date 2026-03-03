@@ -184,7 +184,7 @@ export default function HomeScreen() {
       console.log("WhatsApp API Response:", data);
 
       if (!response.ok) {
-        setError(data.error || "Failed to send OTP");
+        setError(data?.error?.message || "Failed to send OTP");
         return;
       }
 
@@ -218,7 +218,7 @@ export default function HomeScreen() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Invalid OTP");
+        setError(data?.error?.message || "Invalid OTP");
         return;
       }
 
