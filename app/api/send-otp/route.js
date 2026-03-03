@@ -4,6 +4,10 @@ export async function POST(req) {
   try {
     const { phone } = await req.json();
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const formattedPhone = phone.replace(/\D/g, "");
+
     const response = await fetch(
       `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
       {
@@ -14,30 +18,23 @@ export async function POST(req) {
         },
         body: JSON.stringify({
           messaging_product: "whatsapp",
-          to: phone.replace("+", ""),
-          type: "template",
-          template: {
-            name: "hello_world",   // must exist in Meta dashboard
-            language: {
-              code: "en_US",
-            },
+          to: formattedPhone,
+          type: "text",
+          text: {
+            body: `Your Moodygram OTP is: ${otp}`,
           },
         }),
       }
     );
 
-    const metaData = await response.json();
+    const data = await response.json();
 
-    console.log("META RESPONSE:", metaData);
+    console.log("META FULL RESPONSE:", data);
 
-    if (!response.ok) {
-      return NextResponse.json(metaData, { status: response.status });
-    }
-
-    return NextResponse.json(metaData);
+    return NextResponse.json(data, { status: response.status });
 
   } catch (error) {
-    console.error("Server Error:", error);
+    console.error(error);
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
