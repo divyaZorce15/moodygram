@@ -16,6 +16,8 @@ import {
   ChevronDown,
   Mail,
   MailIcon,
+  Star,
+  Heart
 } from "lucide-react";
 
 import DatePicker from "react-datepicker";
@@ -27,6 +29,8 @@ export default function HomeScreen() {
 
   const { user } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
+
+  const [properties, setProperties] = useState([]);
 
   const [emailLoading, setEmailLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -556,14 +560,54 @@ export default function HomeScreen() {
     checkExistingSession();
   }, []);
 
+  useEffect(() => {
+    const fetchProperties = async () => {
+      const { data, error } = await client
+        .from("properties")
+        .select(`
+          id,
+          title,
+          location,
+          price_per_night,
+          duration,
+          property_type,
+          property_category,
+          property_images (
+            image_url,
+            is_cover
+          )
+        `);
+
+      if (error) {
+        console.error("Error fetching:", error);
+        return;
+      }
+
+      const formatted = data.map((item) => {
+        const cover = item.property_images.find(
+          (img) => img.is_cover === true
+        );
+
+        return {
+          ...item,
+          image: cover?.image_url || null,
+        };
+      });
+
+      console.log("PROPERTIES DATA:", formatted);
+      setProperties(formatted);
+    };
+
+    fetchProperties();
+  }, []);
+
 
 
   return (
     <div className="w-full min-h-screen bg-white pb-24">
 
       {/* ================= HEADER ================= */}
-      <header className="relative z-50 mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8">
-        {/* Logo */}
+      <header className="sticky top-0 z-50 bg-white mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8 md:static">        {/* Logo */}
         <div className="h-9 w-28 cursor-pointer rounded bg-zinc-300" />
 
         {/* Actions */}
@@ -725,38 +769,171 @@ export default function HomeScreen() {
       </section>
 
       {/* ================= CONTENT SECTION ================= */}
-      <section className="mx-auto mt-8 max-w-7xl px-4 md:px-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold sm:text-lg lg:text-xl">
-            Curated for you in Kerala
-          </h2>
-          <button className="cursor-pointer text-sm text-zinc-600 hover:underline">
-            See all →
-          </button>
-        </div>
+      <section className="mx-auto mt-8 max-w-7xl px-4 md:px-8 space-y-10">
 
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm"
-            >
-              <div className="h-40 bg-zinc-200 sm:h-44 lg:h-48" />
-              <div className="p-3">
-                <h3 className="text-sm font-medium">
-                  Forest Stay Cabin
-                </h3>
-                <p className="text-xs text-zinc-500">
-                  Wayanad, Kerala
-                </p>
-                <p className="mt-1 text-sm font-semibold">
-                  ₹4,500 / night
-                </p>
+        {[
+          { title: "Popular for you in Kerala", key: null },
+          { title: "Staycation in Kerala", key: null },
+          { title: "Feels – Experience-driven Stays", key: null },
+          { title: "Hiking/Trekking for you", key: "hiking" },
+        ].map((section, idx) => {
+
+          //  FILTER DATA
+          const filteredProperties = (properties || []).filter(
+            (item) => item.property_type === section.key
+          );
+
+          return (
+            <div key={idx}>
+
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold sm:text-lg lg:text-xl">
+                  {section.title}
+                </h2>
+
+                <button className="cursor-pointer text-sm text-zinc-600 hover:underline">
+                  See all →
+                </button>
+              </div>
+
+              {/* Cards */}
+              <div className="mt-4 flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+
+                {filteredProperties.length > 0 ? (
+                  filteredProperties.map((item, i) => {
+
+                    const coverImage = item.property_images?.find(
+                      (img) => img.is_cover === true
+                    );
+
+                    const isHiking = section.key === "hiking";
+
+                    return (
+                      <div
+                        key={item.id || i}
+                        className="
+                          min-w-[48%] 
+                          sm:min-w-[30%] 
+                          lg:min-w-[23%] 
+                          cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm snap-start
+                        "
+                      >
+                        
+                        {/* Image */}
+                        <div className="relative h-40 sm:h-44 lg:h-48 bg-zinc-200">
+                          
+                          {coverImage?.image_url && (
+                            <img
+                              src={coverImage.image_url}
+                              alt="property"
+                              className="absolute inset-0 h-full w-full object-cover"
+                            />
+                          )}
+
+                          <button className="absolute top-2 right-2">
+                            <Heart size={18} className="text-white drop-shadow-md" />
+                          </button>
+
+                          <div className="absolute bottom-2 left-2 flex items-center gap-1 text-white text-xs drop-shadow-md">
+                            <Star size={12} className="fill-white text-white" />
+                            <span>4.9</span>
+                          </div>
+
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-3">
+
+                          {isHiking ? (
+                            <>
+                              {/* Available Date */}
+                              <p className="text-[10px] text-zinc-500 mb-1">
+                                Available from {item.available_from || "N/A"}
+                              </p>
+
+                              {/* Title */}
+                              <h3 className="text-sm font-medium leading-tight">
+                                {item.title || "No Title"}
+                              </h3>
+
+                              {/* Price + Button */}
+                              <div className="flex items-center justify-between mt-1">
+                                
+                                <p className="text-xs font-semibold text-zinc-800">
+                                  ₹{item.price_per_night || "0"} / head
+                                </p>
+
+                                <button className="bg-red-500 text-white text-[10px] px-2 py-1 rounded-md">
+                                  Fast Filling
+                                </button>
+
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              {/* OLD UI */}
+                              <p className="text-[10px] text-zinc-500 mb-1">
+                                {item.property_category || "Individual Property"}
+                              </p>
+
+                              <h3 className="text-sm font-medium leading-tight">
+                                {item.title || "No Title"}
+                              </h3>
+
+                              <p className="text-xs text-zinc-500">
+                                ₹{item.price_per_night || "0"} for {item.duration}
+                              </p>
+                            </>
+                          )}
+
+                        </div>
+
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-sm text-zinc-400 px-2">
+                    No properties found
+                  </p>
+                )}
+
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+
       </section>
+
+      {/* ================= BOTTOM NAV (MOBILE ONLY) ================= */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white md:hidden">
+        <div className="flex justify-around py-2 text-xs">
+
+          <button className="flex flex-col items-center text-green-600">
+            <Home size={20} />
+            <span>My Feed</span>
+          </button>
+
+          <button className="flex flex-col items-center text-zinc-500">
+            <Map size={20} />
+            <span>Journeys</span>
+          </button>
+
+          <button className="flex flex-col items-center text-zinc-500">
+            <Tent size={20} />
+            <span>Bucket List</span>
+          </button>
+
+          <button
+            onClick={resetLoginState}
+            className="flex flex-col items-center text-zinc-500"
+          >
+            <Mail size={20} />
+            <span>{user ? "Account" : "Login"}</span>
+          </button>
+
+        </div>
+      </div>
 
       {/* ================= LOGIN MODAL ================= */}
 
@@ -1002,7 +1179,6 @@ export default function HomeScreen() {
         </div>
       )}
 
-
       {openFinishSignup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Overlay */}
@@ -1057,12 +1233,12 @@ export default function HomeScreen() {
                 />
               </div>
               {/* Date of Birth */}
-              <div className="space-y-2 mt-5">
+              <div className="space-y-2 mt-5 w-full">
                 <label className="text-sm font-medium text-zinc-700">
                   Date of Birth
                 </label>
 
-                <div className="relative cursor-pointer">
+                <div className="relative w-full">
                   <DatePicker
                     selected={dob}
                     onChange={(date) => {
@@ -1076,13 +1252,13 @@ export default function HomeScreen() {
                     scrollableYearDropdown
                     yearDropdownItemNumber={100}
                     placeholderText="Select your date of birth"
-                    className="h-12 w-[170%] rounded-xl border border-zinc-300 px-4 pr-12 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+                    className="h-12 w-full rounded-xl border border-zinc-300 px-4 pr-12 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-black focus:border-black transition"
                   />
 
                   {/* Calendar Icon */}
                   <Calendar
                     size={18}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
                   />
                 </div>
               </div>
