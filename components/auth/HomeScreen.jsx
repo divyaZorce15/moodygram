@@ -614,14 +614,16 @@ export default function HomeScreen() {
     <div className="w-full min-h-screen bg-white pb-24">
 
       {/* ================= HEADER ================= */}
-      <header className="sticky top-0 z-50 bg-white mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8 md:static">        {/* Logo */}
+      <header className="hidden md:flex sticky top-0 z-50 bg-white mx-auto max-w-7xl items-center justify-between px-4 py-4 md:px-8 md:static">
+        {/* Logo */}
         <div className="h-9 w-28 cursor-pointer rounded bg-zinc-300" />
 
         {/* Actions */}
         <div className="flex items-center gap-6">
-          <button className="hidden cursor-pointer text-sm text-zinc-700 md:block">
+          <button className="hidden md:block cursor-pointer text-sm text-zinc-700">
             Become a Host
           </button>
+
           {!user ? (
             <button
               className="cursor-pointer rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white"
@@ -630,64 +632,60 @@ export default function HomeScreen() {
               Login / Sign Up
             </button>
           ) : (
-              <div  ref={menuRef}  className="relative cursor-pointer">
-                <button
-                  onClick={() => setOpenMenu((v) => !v)}
-                  className="flex items-center justify-center rounded-full border bg-white p-2 cursor-pointer"
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white text-sm font-semibold">
-                    {user.user_metadata?.full_name
-                      ? user.user_metadata.full_name[0].toUpperCase()
-                      : user.email?.[0]?.toUpperCase() || "U"}
-                  </div>
-                </button>
+            <div ref={menuRef} className="relative cursor-pointer">
+              <button
+                onClick={() => setOpenMenu((v) => !v)}
+                className="flex items-center justify-center rounded-full border bg-white p-2 cursor-pointer"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white text-sm font-semibold">
+                  {user.user_metadata?.full_name
+                    ? user.user_metadata.full_name[0].toUpperCase()
+                    : user.email?.[0]?.toUpperCase() || "U"}
+                </div>
+              </button>
 
-
-                {openMenu && (
-                  <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white shadow-lg">
-                    
-                    {/* User Info */}
-                    <div className="flex items-center gap-3 border-b px-4 py-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white font-semibold">
-                        {user.user_metadata?.full_name
-                          ? user.user_metadata.full_name[0].toUpperCase()
-                          : user.email?.[0]?.toUpperCase() || "U"}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-zinc-900">
-                          {user.user_metadata?.full_name || "User"}
-                        </p>
-                        <p className="truncate text-xs text-zinc-500">
-                          {user.email || user.phone}
-                        </p>
-                      </div>
+              {openMenu && (
+                <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white shadow-lg">
+                  {/* User Info */}
+                  <div className="flex items-center gap-3 border-b px-4 py-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white font-semibold">
+                      {user.user_metadata?.full_name
+                        ? user.user_metadata.full_name[0].toUpperCase()
+                        : user.email?.[0]?.toUpperCase() || "U"}
                     </div>
-
-                    {/* Menu Items */}
-                    <button className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-50 rounded-xl cursor-pointer">
-                      My Profile
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setOpenMenu(false);
-                        logout();
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-zinc-50 rounded-xl cursor-pointer"
-                    >
-                      Logout
-                    </button>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-zinc-900">
+                        {user.user_metadata?.full_name || "User"}
+                      </p>
+                      <p className="truncate text-xs text-zinc-500">
+                        {user.email || user.phone}
+                      </p>
+                    </div>
                   </div>
-                )}
 
-              </div>
+                  {/* Menu Items */}
+                  <button className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-50 rounded-xl cursor-pointer">
+                    My Profile
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setOpenMenu(false);
+                      logout();
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-zinc-50 rounded-xl cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
-
         </div>
       </header>
 
       {/* ================= HERO ================= */}
-      <section className="relative h-[420px] w-full sm:h-[480px] lg:h-[600px]">
+      <section className="relative h-[420px] w-full sm:h-[480px] lg:h-[600px] hidden md:block">
         <Image
           src="/hero.jpg"
           alt="Nature stay"
@@ -740,7 +738,7 @@ export default function HomeScreen() {
       </section>
 
       {/* ================= CATEGORIES ================= */}
-      <section className="mx-auto mt-6 max-w-6xl border-b px-4 pb-4 sm:mt-8">
+      <section className="mx-auto mt-6 max-w-6xl border-b px-4 pb-4 sm:mt-8 hidden  md:block">
         <div className="flex justify-between sm:justify-around">
           {[
             { label: "All", icon: Home },
@@ -774,6 +772,50 @@ export default function HomeScreen() {
           ))}
         </div>
       </section>
+
+      {/* ================= SEARCH BAR + CATEGORIES (MOBILE ONLY) ================= */}
+      <div className="sticky top-0 z-50 bg-white px-4 py-3  md:hidden border-b">
+        <div className="max-w-7xl mx-auto flex flex-col gap-3">
+
+          {/* Input Row */}
+          <div className="flex items-center gap-2">
+            
+
+          <button className="w-full ml-2 flex items-center gap-2 rounded-full border  bg-zinc-200 border-zinc-400 px-4 py-2 text-zinc-700 text-sm font-medium hover:bg-zinc-50">
+            <Search size={16} /> Search
+          </button>
+          </div>
+
+          {/* Categories */}
+          <div className="flex justify-between overflow-x-auto no-scrollbar mt-2">
+            {[
+              { label: "All", icon: Home },
+              { label: "Staycations", icon: Tent },
+              { label: "Feels", icon: Map },
+              { label: "Hiking/Trekking", icon: Mountain },
+            ].map(({ label, icon: Icon }, i) => (
+              <button
+                key={label}
+                className="flex flex-col items-center gap-1 text-xs text-zinc-500 min-w-[60px]"
+              >
+                <Icon size={22} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+
+        </div>
+      </div>
+        {/* Mobile Banner */}
+      <div className="relative w-[90%] max-w-sm h-36 mx-auto my-3 rounded-xl overflow-hidden shadow-md  md:hidden ">
+        <Image
+          src="/hero.jpg"
+          alt="Nature stay"
+          fill
+          priority
+          className="object-cover"
+        />
+      </div>
 
       {/* ================= CONTENT SECTION ================= */}
       <section className="mx-auto mt-8 max-w-7xl px-4 md:px-8 space-y-10">
