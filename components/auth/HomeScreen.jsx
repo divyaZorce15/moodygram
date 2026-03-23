@@ -12,6 +12,7 @@ import {
   Home,
   Map,
   Mountain,
+  FlagTriangleRightIcon,
   X,
   ChevronDown,
   Mail,
@@ -20,7 +21,8 @@ import {
   Heart,
   HeartPlus,
   User,
-  Grid
+  Grid,
+  FlashlightIcon,
 } from "lucide-react";
 
 import DatePicker from "react-datepicker";
@@ -55,6 +57,8 @@ export default function HomeScreen() {
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState(null);
   const [showAlmostThere, setShowAlmostThere] = useState(false);
+
+  const [activeTab, setActiveTab] = useState(""); 
 
   const menuRef = useRef(null);
   const router = useRouter();
@@ -912,28 +916,30 @@ export default function HomeScreen() {
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white md:hidden">
         <div className="flex justify-around py-2 text-xs">
 
-          <button className="flex flex-col items-center text-green-600">
-            <Grid size={20} />
-            <span>My Feed</span>
-          </button>
-
-          <button className="flex flex-col items-center text-zinc-500">
-            <Map size={20} />
-            <span>Journeys</span>
-          </button>
-
-          <button className="flex flex-col items-center text-zinc-500">
-            <HeartPlus size={20} />
-            <span>Bucket List</span>
-          </button>
-
-          <button
-            onClick={resetLoginState}
-            className="flex flex-col items-center text-zinc-500"
-          >
-            <User size={20} />
-            <span>{user ? "Account" : "Login"}</span>
-          </button>
+          {[
+            { label: "My Feed", icon: Grid },
+            { label: "Journeys", icon: Map },
+            { label: "Bucket List", icon: HeartPlus },
+            { label: user ? "Account" : "Login", icon: User },
+          ].map(({ label, icon: Icon }, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                if (!user) {
+                  resetLoginState(); // open login modal
+                  return;
+                }
+                setActiveTab(label); // mark clicked tab as active
+                console.log(`Navigate to ${label}`);
+              }}
+              className={`flex flex-col items-center ${
+                activeTab === label ? "text-green-600" : "text-zinc-500"
+              }`}
+            >
+              <Icon size={20} />
+              <span>{label}</span>
+            </button>
+          ))}
 
         </div>
       </div>
