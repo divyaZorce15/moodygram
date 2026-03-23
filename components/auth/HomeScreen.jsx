@@ -781,7 +781,7 @@ export default function HomeScreen() {
         {[
           { title: "Popular for you in Kerala", key: null },
           { title: "Staycation in Kerala", key: null },
-          { title: "Feels – Experience-driven Stays", key: null },
+          { title: "Feels - Experience - driven Stays", key: null },
           { title: "Hiking/Trekking for you", key: "hiking" },
         ].map((section, idx) => {
 
@@ -795,7 +795,7 @@ export default function HomeScreen() {
 
               {/* Header */}
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold sm:text-lg lg:text-xl">
+                <h2 className="text-base font-bold sm:text-lg lg:text-xl">
                   {section.title}
                 </h2>
 
