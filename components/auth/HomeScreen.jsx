@@ -17,7 +17,10 @@ import {
   Mail,
   MailIcon,
   Star,
-  Heart
+  Heart,
+  HeartPlus,
+  User,
+  Grid
 } from "lucide-react";
 
 import DatePicker from "react-datepicker";
@@ -910,7 +913,7 @@ export default function HomeScreen() {
         <div className="flex justify-around py-2 text-xs">
 
           <button className="flex flex-col items-center text-green-600">
-            <Home size={20} />
+            <Grid size={20} />
             <span>My Feed</span>
           </button>
 
@@ -920,7 +923,7 @@ export default function HomeScreen() {
           </button>
 
           <button className="flex flex-col items-center text-zinc-500">
-            <Tent size={20} />
+            <HeartPlus size={20} />
             <span>Bucket List</span>
           </button>
 
@@ -928,7 +931,7 @@ export default function HomeScreen() {
             onClick={resetLoginState}
             className="flex flex-col items-center text-zinc-500"
           >
-            <Mail size={20} />
+            <User size={20} />
             <span>{user ? "Account" : "Login"}</span>
           </button>
 
