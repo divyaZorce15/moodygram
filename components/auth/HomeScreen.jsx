@@ -988,8 +988,7 @@ export default function HomeScreen() {
 
                             {/* Title */}
                             <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
-                              {item.title || "No Title"} <br/>
-                              {item.location}
+                              {item.title || "No Title"}, {item.location}
                             </h3>
 
                             {/* Price */}
@@ -1337,12 +1336,7 @@ export default function HomeScreen() {
                 <input
                   placeholder="Enter last name"
                   value={lastName}
-                  onChange={(e) =>
-                    setLastName(
-                      e.target.value.charAt(0).toUpperCase() +
-                      e.target.value.slice(1)
-                    )
-                  }
+                  onChange={(e) => setLastName(e.target.value)}
                   className="h-12 w-full rounded-xl border border-zinc-300 px-4 text-sm outline-none focus:ring-2 focus:ring-black focus:border-black transition cursor-pointer"
                 />
               </div>
