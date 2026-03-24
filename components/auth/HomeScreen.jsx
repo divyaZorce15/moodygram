@@ -750,38 +750,41 @@ export default function HomeScreen() {
       </section>
 
       {/* ================= CATEGORIES ================= */}
-      <section className="mx-auto mt-6 max-w-6xl border-b px-4 pb-4 sm:mt-8 hidden  md:block">
+      <section className="mx-auto mt-6 mb-6 max-w-2xl px-4 pb-4 sm:mt-8 hidden md:block cursor-pointer">
         <div className="flex justify-between sm:justify-around cursor-pointer">
-         {categories.map(({ label, icon: Icon }) => (
+          {categories.map(({ label, icon: Icon }) => (
             <button
               key={label}
               onClick={() => setActiveCategory(label)}
-              className="group flex flex-col items-center gap-1 text-xs sm:text-sm transition cursor-pointer"
+              className="flex flex-col items-center gap-1 text-xs sm:text-sm transition cursor-pointer"
             >
+              {/* Icon */}
               <Icon
-                size={22}
+                size={28}
                 className={
                   activeCategory === label
-                    ? "text-[#056300]"
+                    ? "text-[#205107]"
                     : "text-zinc-400"
                 }
               />
 
+              {/* Text */}
               <span
                 className={
                   activeCategory === label
-                    ? "text-[#056300]"
+                    ? "text-[#205107]"
                     : "text-zinc-500"
                 }
               >
                 {label}
               </span>
 
+              {/* Underline */}
               <span
-                className={`mt-1 h-0.5 w-6 rounded-full transition ${
+                className={`mt-1 h-[2px] w-full rounded-full ${
                   activeCategory === label
-                    ? "bg-[#056300]"
-                    : "bg-transparent group-hover:bg-zinc-300"
+                    ? "bg-[#205107]"
+                    : "bg-[#D9D9D9]"
                 }`}
               />
             </button>
