@@ -807,7 +807,7 @@ export default function HomeScreen() {
 
           {/* Categories */}
           <div className="flex overflow-x-auto no-scrollbar mt-2">
-            <div className="flex gap-12 px-4 min-w-max mx-auto">
+            <div className="flex gap-6 px-4 min-w-max mx-auto">
               
               {categories.map(({ label, icon: Icon }) => (
                 <button
@@ -939,6 +939,8 @@ export default function HomeScreen() {
 
                           </div>
 
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-[5] pointer-events-none" />
+                          
                           {/* Wishlist */}
                           <button className="absolute top-2 right-2 z-10">
                             <Heart size={18} className="text-white drop-shadow-md" />
@@ -971,16 +973,16 @@ export default function HomeScreen() {
 
                           {isHiking ? (
                             <>
-                              <p className="mt-1 text-[#000000] font-inter font-regular text-[13px]  tracking-[0.06px]">
+                              <p className="mt-1 text-[#000000] font-inter font-regular text-[12px]  tracking-[0.06px]">
                                 Available from {item.available_from || "N/A"}
                               </p>
 
-                              <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
+                              <h3 className="mt-2 text-[12px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
                                 {item.title || "No Title"}
                               </h3>
 
                               <div className="flex items-center justify-between mt-2">
-                                <p className="text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                                <p className="text-[10px] font-inter font-medium leading-[140%] text-[#2E4454]">
                                   ₹{item.price_per_night || "0"} / head
                                 </p>
 
@@ -991,16 +993,16 @@ export default function HomeScreen() {
                             </>
                           ) : (
                             <>
-                              <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[13px] tracking-[0.06px]">
+                              <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[12px] tracking-[0.06px]">
                                 <Tent size={16} className="text-zinc-500" /> 
                                 <span>{item.property_category || "Individual Property"}</span>
                               </div>
 
-                              <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
+                              <h3 className="mt-2 text-[12px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
                                 {item.title || "No Title"}, {item.location}
                               </h3>
 
-                              <p className="mt-2 text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                              <p className="mt-2 text-[10px] font-inter font-medium leading-[140%] text-[#2E4454]">
                                 ₹{item.price_per_night || "0"} for {item.duration}
                               </p>
                             </>
