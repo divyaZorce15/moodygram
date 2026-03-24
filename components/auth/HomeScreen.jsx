@@ -23,6 +23,9 @@ import {
   User,
   Grid,
   FlashlightIcon,
+  ArrowRight,
+  HomeIcon,
+  LandPlot,
 } from "lucide-react";
 
 import DatePicker from "react-datepicker";
@@ -59,6 +62,15 @@ export default function HomeScreen() {
   const [showAlmostThere, setShowAlmostThere] = useState(false);
 
   const [activeTab, setActiveTab] = useState(""); 
+  const [activeCategory, setActiveCategory] = useState("All");
+  const categories = [
+    { label: "All", icon: Home },
+    { label: "Staycations", icon: Tent },
+    { label: "Feels", icon: Map },
+    { label: "Hiking/Trekking", icon: Mountain },
+  ];
+
+  const [activeIndexes, setActiveIndexes] = useState({});
 
   const menuRef = useRef(null);
   const router = useRouter();
@@ -739,32 +751,36 @@ export default function HomeScreen() {
 
       {/* ================= CATEGORIES ================= */}
       <section className="mx-auto mt-6 max-w-6xl border-b px-4 pb-4 sm:mt-8 hidden  md:block">
-        <div className="flex justify-between sm:justify-around">
-          {[
-            { label: "All", icon: Home },
-            { label: "Staycations", icon: Tent },
-            { label: "Feels", icon: Map },
-            { label: "Hiking/Trekking", icon: Mountain },
-          ].map(({ label, icon: Icon }, i) => (
+        <div className="flex justify-between sm:justify-around cursor-pointer">
+         {categories.map(({ label, icon: Icon }) => (
             <button
               key={label}
-              className={`group flex cursor-pointer flex-col items-center gap-1 text-xs sm:text-sm transition ${
-                i === 0
-                  ? "text-green-600"
-                  : "text-zinc-500 hover:text-zinc-800"
-              }`}
+              onClick={() => setActiveCategory(label)}
+              className="group flex flex-col items-center gap-1 text-xs sm:text-sm transition cursor-pointer"
             >
               <Icon
                 size={22}
-                className={`${
-                  i === 0 ? "text-green-600" : "text-zinc-400"
-                }`}
+                className={
+                  activeCategory === label
+                    ? "text-[#056300]"
+                    : "text-zinc-400"
+                }
               />
-              <span>{label}</span>
+
+              <span
+                className={
+                  activeCategory === label
+                    ? "text-[#056300]"
+                    : "text-zinc-500"
+                }
+              >
+                {label}
+              </span>
+
               <span
                 className={`mt-1 h-0.5 w-6 rounded-full transition ${
-                  i === 0
-                    ? "bg-green-600"
+                  activeCategory === label
+                    ? "bg-[#056300]"
                     : "bg-transparent group-hover:bg-zinc-300"
                 }`}
               />
@@ -774,40 +790,63 @@ export default function HomeScreen() {
       </section>
 
       {/* ================= SEARCH BAR + CATEGORIES (MOBILE ONLY) ================= */}
-      <div className="sticky top-0 z-50 bg-white px-4 py-3  md:hidden border-b">
+      <div className="sticky top-0 z-50 bg-white border-b rounded-b-[25px] shadow-md px-4 pt-3 md:hidden">
+        
         <div className="max-w-7xl mx-auto flex flex-col gap-3">
 
           {/* Input Row */}
-          <div className="flex items-center gap-2">
-            
-
-          <button className="w-full ml-2 flex items-center gap-2 rounded-full border  bg-zinc-200 border-zinc-400 px-4 py-2 text-zinc-700 text-sm font-medium hover:bg-zinc-50">
-            <Search size={16} /> Search
-          </button>
+          <div className="flex items-center gap-2 mt-3 mb-2">
+            <button className="flex items-center gap-2 w-full h-[44px] bg-[#F7F7F7] border border-[#C6C6C6] rounded-[64px] px-2 py-2 text-sm font-medium">
+              <Search size={16} /> 
+              <span className="text-[#2E4454]">Search</span>
+            </button>
           </div>
 
           {/* Categories */}
-          <div className="flex justify-between overflow-x-auto no-scrollbar mt-2">
-            {[
-              { label: "All", icon: Home },
-              { label: "Staycations", icon: Tent },
-              { label: "Feels", icon: Map },
-              { label: "Hiking/Trekking", icon: Mountain },
-            ].map(({ label, icon: Icon }, i) => (
-              <button
-                key={label}
-                className="flex flex-col items-center gap-1 text-xs text-zinc-500 min-w-[60px]"
-              >
-                <Icon size={22} />
-                <span>{label}</span>
-              </button>
-            ))}
+          <div className="flex overflow-x-auto no-scrollbar mt-2">
+            <div className="flex gap-12 px-4 min-w-max mx-auto">
+              
+              {categories.map(({ label, icon: Icon }) => (
+                <button
+                  key={label}
+                  onClick={() => setActiveCategory(label)}
+                  className="relative flex flex-col items-center gap-1 pb-3 shrink-0"
+                >
+                  {/* Icon */}
+                  <Icon
+                    size={22}
+                    className={
+                      activeCategory === label
+                        ? "text-[#056300]"
+                        : "text-[#2E4454]"
+                    }
+                  />
+
+                  {/* Text */}
+                  <span
+                    className={`font-inter text-[13px] tracking-[0.06px] ${
+                      activeCategory === label
+                        ? "text-[#056300]"
+                        : "text-[#2E4454]"
+                    }`}
+                  >
+                    {label}
+                  </span>
+
+                  {/* Underline */}
+                  {activeCategory === label && (
+                    <span className="absolute bottom-0 h-[2px] w-full bg-[#056300] rounded-full" />
+                  )}
+                </button>
+              ))}
+
+            </div>
           </div>
 
         </div>
       </div>
-        {/* Mobile Banner */}
-      <div className="relative w-[90%] max-w-sm h-36 mx-auto my-3 rounded-xl overflow-hidden shadow-md  md:hidden ">
+      {/* Mobile Banner */}
+      <div className="relative w-[91%] max-w-sm h-36 mx-auto my-5 rounded-xl overflow-hidden shadow-md  md:hidden ">
         <Image
           src="/hero.jpg"
           alt="Nature stay"
@@ -818,7 +857,7 @@ export default function HomeScreen() {
       </div>
 
       {/* ================= CONTENT SECTION ================= */}
-      <section className="mx-auto mt-8 max-w-7xl px-4 md:px-8 space-y-10">
+      <section className="mx-auto mt-4 max-w-7xl px-5 md:px-5 space-y-5">
 
         {[
           { title: "Popular for you in Kerala", key: null },
@@ -837,12 +876,12 @@ export default function HomeScreen() {
 
               {/* Header */}
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold sm:text-lg lg:text-xl">
+                <h1 className="text-base font-bold sm:text-lg lg:text-xl">
                   {section.title}
-                </h2>
+                </h1>
 
-                <button className="cursor-pointer text-sm text-zinc-600 hover:underline">
-                  See all →
+                <button className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7]  hover:bg-zinc-100 transition">
+                  <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
                 </button>
               </div>
 
@@ -862,81 +901,105 @@ export default function HomeScreen() {
                       <div
                         key={item.id || i}
                         className="
-                          min-w-[48%] 
+                          min-w-[42%] 
                           sm:min-w-[30%] 
                           lg:min-w-[23%] 
-                          cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm snap-start
-                        "
+                          cursor-pointer overflow-hidden"
                       >
                         
-                        {/* Image */}
-                        <div className="relative h-40 sm:h-44 lg:h-48 bg-zinc-200">
-                          
-                          {coverImage?.image_url && (
-                            <img
-                              src={coverImage.image_url}
-                              alt="property"
-                              className="absolute inset-0 h-full w-full object-cover"
-                            />
-                          )}
+                       {/* Image */}
+<div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
+  
+  {/* Images Slider */}
+  <div className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
+    
+    {(item.property_images || []).map((img, index) => (
+      <img
+        key={index}
+        src={img.image_url}
+        alt="property"
+        className="w-full h-full object-cover flex-shrink-0 snap-start"
+      />
+    ))}
 
-                          <button className="absolute top-2 right-2">
-                            <Heart size={18} className="text-white drop-shadow-md" />
-                          </button>
+  </div>
 
-                          <div className="absolute bottom-2 left-2 flex items-center gap-1 text-white text-xs drop-shadow-md">
-                            <Star size={12} className="fill-white text-white" />
-                            <span>4.9</span>
-                          </div>
+  {/* ❤️ Wishlist */}
+  <button className="absolute top-2 right-2 z-10">
+    <Heart size={18} className="text-white drop-shadow-md" />
+  </button>
 
-                        </div>
+  {/* ⭐ Rating */}
+  <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
+    <Star size={12} className="fill-white text-white" />
+    <span>4.9</span>
+  </div>
 
-                        {/* Content */}
-                        <div className="p-3">
+  {/* 🔘 Dots Indicator (bottom right) */}
+  <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+    {(item.property_images || []).map((_, dotIndex) => (
+      <span
+        key={dotIndex}
+        className={`h-[5px] w-[5px] rounded-full ${
+          dotIndex === 0 ? "bg-white" : "bg-white/50"
+        }`}
+      />
+    ))}
+  </div>
 
-                          {isHiking ? (
-                            <>
-                              {/* Available Date */}
-                              <p className="text-[10px] text-zinc-500 mb-1">
-                                Available from {item.available_from || "N/A"}
+</div>
+
+                      {/* Content */}
+                      <div className="p-1">
+
+                        {isHiking ? (
+                          <>
+                            {/* Available Date */}
+                            <p className="mt-1 text-[#000000] font-inter font-regular text-[13px]  tracking-[0.06px]">
+                              Available from {item.available_from || "N/A"}
+                            </p>
+
+                            {/* Title */}
+                            <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
+                              {item.title || "No Title"}
+                            </h3>
+
+                            {/* Price + Button */}
+                            <div className="flex items-center justify-between mt-2">
+                              
+                              <p className="text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                                ₹{item.price_per_night || "0"} / head
                               </p>
 
-                              {/* Title */}
-                              <h3 className="text-sm font-medium leading-tight">
-                                {item.title || "No Title"}
-                              </h3>
+                              <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
+                                Fast Filling
+                              </button>
 
-                              {/* Price + Button */}
-                              <div className="flex items-center justify-between mt-1">
-                                
-                                <p className="text-xs font-semibold text-zinc-800">
-                                  ₹{item.price_per_night || "0"} / head
-                                </p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* Individual Property */}
+                            <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[13px] tracking-[0.06px]">
+                              {/* Icon on the left */}
+                              <Tent size={16} className="text-zinc-500" /> 
+                              <span>{item.property_category || "Individual Property"}</span>
+                            </div>
 
-                                <button className="bg-red-500 text-white text-[10px] px-2 py-1 rounded-md">
-                                  Fast Filling
-                                </button>
+                            {/* Title */}
+                            <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
+                              {item.title || "No Title"} <br/>
+                              {item.location}
+                            </h3>
 
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              {/* OLD UI */}
-                              <p className="text-[10px] text-zinc-500 mb-1">
-                                {item.property_category || "Individual Property"}
-                              </p>
+                            {/* Price */}
+                            <p className="mt-2 text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                              ₹{item.price_per_night || "0"} for {item.duration}
+                            </p>
+                          </>
+                        )}
 
-                              <h3 className="text-sm font-medium leading-tight">
-                                {item.title || "No Title"}
-                              </h3>
-
-                              <p className="text-xs text-zinc-500">
-                                ₹{item.price_per_night || "0"} for {item.duration}
-                              </p>
-                            </>
-                          )}
-
-                        </div>
+                      </div>
 
                       </div>
                     );
@@ -1375,8 +1438,6 @@ export default function HomeScreen() {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }

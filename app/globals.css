@@ -1,6 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -126,4 +127,10 @@
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+
+
+body {
+  font-family: 'Inter', sans-serif;
 }
