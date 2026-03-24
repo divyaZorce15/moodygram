@@ -973,16 +973,16 @@ export default function HomeScreen() {
 
                           {isHiking ? (
                             <>
-                              <p className="mt-1 text-[#000000] font-inter font-regular text-[12px]  tracking-[0.06px]">
+                              <p className="mt-1 text-[#000000] font-inter font-regular text-[11px]  tracking-[0.06px]">
                                 Available from {item.available_from || "N/A"}
                               </p>
 
-                              <h3 className="mt-2 text-[12px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
+                              <h3 className="mt-2 text-[11px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
                                 {item.title || "No Title"}
                               </h3>
 
                               <div className="flex items-center justify-between mt-2">
-                                <p className="text-[10px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                                <p className="text-[11px] font-inter font-medium leading-[140%] text-[#2E4454]">
                                   ₹{item.price_per_night || "0"} / head
                                 </p>
 
@@ -993,16 +993,16 @@ export default function HomeScreen() {
                             </>
                           ) : (
                             <>
-                              <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[12px] tracking-[0.06px]">
-                                <Tent size={16} className="text-zinc-500" /> 
+                              <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[11px] tracking-[0.06px]">
+                                <Tent size={13} className="text-zinc-500" /> 
                                 <span>{item.property_category || "Individual Property"}</span>
                               </div>
 
-                              <h3 className="mt-2 text-[12px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
+                              <h3 className="mt-2 text-[11px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
                                 {item.title || "No Title"}, {item.location}
                               </h3>
 
-                              <p className="mt-2 text-[10px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                              <p className="mt-2 text-[11px] font-inter font-medium leading-[140%] text-[#2E4454]">
                                 ₹{item.price_per_night || "0"} for {item.duration}
                               </p>
                             </>
