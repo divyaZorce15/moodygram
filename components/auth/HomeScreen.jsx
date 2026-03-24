@@ -908,46 +908,46 @@ export default function HomeScreen() {
                       >
                         
                        {/* Image */}
-<div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
-  
-  {/* Images Slider */}
-  <div className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
-    
-    {(item.property_images || []).map((img, index) => (
-      <img
-        key={index}
-        src={img.image_url}
-        alt="property"
-        className="w-full h-full object-cover flex-shrink-0 snap-start"
-      />
-    ))}
+                      <div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
+                        
+                        {/* Images Slider */}
+                        <div className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
+                          
+                          {(item.property_images || []).map((img, index) => (
+                            <img
+                              key={index}
+                              src={img.image_url}
+                              alt="property"
+                              className="w-full h-full object-cover flex-shrink-0 snap-start"
+                            />
+                          ))}
 
-  </div>
+                        </div>
 
-  {/* ❤️ Wishlist */}
-  <button className="absolute top-2 right-2 z-10">
-    <Heart size={18} className="text-white drop-shadow-md" />
-  </button>
+                        {/* Wishlist */}
+                        <button className="absolute top-2 right-2 z-10">
+                          <Heart size={18} className="text-white drop-shadow-md" />
+                        </button>
 
-  {/* ⭐ Rating */}
-  <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
-    <Star size={12} className="fill-white text-white" />
-    <span>4.9</span>
-  </div>
+                        {/* Rating */}
+                        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
+                          <Star size={12} className="fill-white text-white" />
+                          <span>4.9</span>
+                        </div>
 
-  {/* 🔘 Dots Indicator (bottom right) */}
-  <div className="absolute bottom-2 right-2 z-10 flex gap-1">
-    {(item.property_images || []).map((_, dotIndex) => (
-      <span
-        key={dotIndex}
-        className={`h-[5px] w-[5px] rounded-full ${
-          dotIndex === 0 ? "bg-white" : "bg-white/50"
-        }`}
-      />
-    ))}
-  </div>
+                        {/* Dots Indicator */}
+                        <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+                          {(item.property_images || []).map((_, dotIndex) => (
+                            <span
+                              key={dotIndex}
+                              className={`h-[5px] w-[5px] rounded-full ${
+                                dotIndex === 0 ? "bg-white" : "bg-white/50"
+                              }`}
+                            />
+                          ))}
+                        </div>
 
-</div>
+                      </div>
 
                       {/* Content */}
                       <div className="p-1">
