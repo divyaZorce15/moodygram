@@ -915,7 +915,7 @@ export default function HomeScreen() {
                           
                           {/* Images Slider */}
                           <div
-                            className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+                            className="flex h-full w-full overflow-x-auto snap-x snap-proximity no-scrollbar scroll-smooth"
                             onScroll={(e) => {
                               const scrollLeft = e.target.scrollLeft;
                               const width = e.target.clientWidth;
