@@ -70,7 +70,7 @@ export default function HomeScreen() {
     { label: "Hiking/Trekking", icon: Mountain },
   ];
 
-  const [activeIndexes, setActiveIndexes] = useState({});
+  const [activeImageIndex, setActiveImageIndex] = useState({});
 
   const menuRef = useRef(null);
   const router = useRouter();
@@ -910,98 +910,103 @@ export default function HomeScreen() {
                           cursor-pointer overflow-hidden"
                       >
                         
-                       {/* Image */}
-                      <div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
-                        
-                        {/* Images Slider */}
-                        <div className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
+                        {/* Image */}
+                        <div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
                           
-                          {(item.property_images || []).map((img, index) => (
-                            <img
-                              key={index}
-                              src={img.image_url}
-                              alt="property"
-                              className="w-full h-full object-cover flex-shrink-0 snap-start"
-                            />
-                          ))}
+                          {/* Images Slider */}
+                          <div
+                            className="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+                            onScroll={(e) => {
+                              const scrollLeft = e.target.scrollLeft;
+                              const width = e.target.clientWidth;
+                              const index = Math.round(scrollLeft / width);
+
+                              setActiveImageIndex((prev) => ({
+                                ...prev,
+                                [item.id]: index,
+                              }));
+                            }}
+                          >
+                            
+                            {(item.property_images || []).map((img, index) => (
+                              <img
+                                key={index}
+                                src={img.image_url}
+                                alt="property"
+                                className="w-full h-full object-cover flex-shrink-0 snap-start"
+                              />
+                            ))}
+
+                          </div>
+
+                          {/* Wishlist */}
+                          <button className="absolute top-2 right-2 z-10">
+                            <Heart size={18} className="text-white drop-shadow-md" />
+                          </button>
+
+                          {/* Rating */}
+                          <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
+                            <Star size={12} className="fill-white text-white" />
+                            <span>4.9</span>
+                          </div>
+
+                          {/* Dots Indicator */}
+                          <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+                            {(item.property_images || []).map((_, dotIndex) => (
+                              <span
+                                key={dotIndex}
+                                className={`h-[5px] w-[5px] rounded-full ${
+                                  (activeImageIndex[item.id] ?? 0) === dotIndex
+                                    ? "bg-white"
+                                    : "bg-white/50"
+                                }`}
+                              />
+                            ))}
+                          </div>
 
                         </div>
 
-                        {/* Wishlist */}
-                        <button className="absolute top-2 right-2 z-10">
-                          <Heart size={18} className="text-white drop-shadow-md" />
-                        </button>
+                        {/* Content */}
+                        <div className="p-1">
 
-                        {/* Rating */}
-                        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
-                          <Star size={12} className="fill-white text-white" />
-                          <span>4.9</span>
-                        </div>
-
-                        {/* Dots Indicator */}
-                        <div className="absolute bottom-2 right-2 z-10 flex gap-1">
-                          {(item.property_images || []).map((_, dotIndex) => (
-                            <span
-                              key={dotIndex}
-                              className={`h-[5px] w-[5px] rounded-full ${
-                                dotIndex === 0 ? "bg-white" : "bg-white/50"
-                              }`}
-                            />
-                          ))}
-                        </div>
-
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-1">
-
-                        {isHiking ? (
-                          <>
-                            {/* Available Date */}
-                            <p className="mt-1 text-[#000000] font-inter font-regular text-[13px]  tracking-[0.06px]">
-                              Available from {item.available_from || "N/A"}
-                            </p>
-
-                            {/* Title */}
-                            <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
-                              {item.title || "No Title"}
-                            </h3>
-
-                            {/* Price + Button */}
-                            <div className="flex items-center justify-between mt-2">
-                              
-                              <p className="text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
-                                ₹{item.price_per_night || "0"} / head
+                          {isHiking ? (
+                            <>
+                              <p className="mt-1 text-[#000000] font-inter font-regular text-[13px]  tracking-[0.06px]">
+                                Available from {item.available_from || "N/A"}
                               </p>
 
-                              <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
-                                Fast Filling
-                              </button>
+                              <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
+                                {item.title || "No Title"}
+                              </h3>
 
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            {/* Individual Property */}
-                            <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[13px] tracking-[0.06px]">
-                              {/* Icon on the left */}
-                              <Tent size={16} className="text-zinc-500" /> 
-                              <span>{item.property_category || "Individual Property"}</span>
-                            </div>
+                              <div className="flex items-center justify-between mt-2">
+                                <p className="text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                                  ₹{item.price_per_night || "0"} / head
+                                </p>
 
-                            {/* Title */}
-                            <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
-                              {item.title || "No Title"}, {item.location}
-                            </h3>
+                                <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
+                                  Fast Filling
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[13px] tracking-[0.06px]">
+                                <Tent size={16} className="text-zinc-500" /> 
+                                <span>{item.property_category || "Individual Property"}</span>
+                              </div>
 
-                            {/* Price */}
-                            <p className="mt-2 text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
-                              ₹{item.price_per_night || "0"} for {item.duration}
-                            </p>
-                          </>
-                        )}
+                              <h3 className="mt-2 text-[13px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000]">
+                                {item.title || "No Title"}, {item.location}
+                              </h3>
 
-                      </div>
+                              <p className="mt-2 text-[12px] font-inter font-medium leading-[140%] text-[#2E4454]">
+                                ₹{item.price_per_night || "0"} for {item.duration}
+                              </p>
+                            </>
+                          )}
+
+                        </div>
 
                       </div>
                     );
