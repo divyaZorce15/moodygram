@@ -889,7 +889,7 @@ export default function HomeScreen() {
               </div>
 
               {/* Cards */}
-              <div className="mt-4 flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+              <div className="mt-4 flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory">
 
                 {filteredProperties.length > 0 ? (
                   filteredProperties.map((item, i) => {
@@ -904,7 +904,7 @@ export default function HomeScreen() {
                       <div
                         key={item.id || i}
                         className="
-                          min-w-[42%] 
+                          min-w-[45%] 
                           sm:min-w-[30%] 
                           lg:min-w-[23%] 
                           cursor-pointer overflow-hidden"
