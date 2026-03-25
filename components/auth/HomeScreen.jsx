@@ -35,16 +35,16 @@ import { forwardRef } from "react";
 
 export default function HomeScreen() {
 
+  const menuRef = useRef(null);
+  const router = useRouter();
+
   const { user } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
-
-  const [properties, setProperties] = useState([]);
 
   const [emailLoading, setEmailLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const [loginMethod, setLoginMethod] = useState("email"); 
-
   const [openLogin, setOpenLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("")
@@ -61,6 +61,7 @@ export default function HomeScreen() {
   const [dob, setDob] = useState(null);
   const [showAlmostThere, setShowAlmostThere] = useState(false);
 
+  const [properties, setProperties] = useState([]);
   const [activeTab, setActiveTab] = useState(""); 
   const [activeCategory, setActiveCategory] = useState("All");
   const categories = [
@@ -70,25 +71,36 @@ export default function HomeScreen() {
     { label: "Hiking/Trekking", icon: Mountain },
   ];
 
+  const allSections = [
+    { title: "Popular for you in Kerala", key: "all" },
+    { title: "Staycation in Kerala", key: "staycation" },
+    { title: "Feels - Experience - driven Stays", key: "feels" },
+    { title: "Hiking/Trekking for you", key: "hiking" },
+  ];
+
+  const visibleSections =
+    activeCategory === "all"
+      ? allSections
+      : allSections.filter((section) => {
+          if (activeCategory === "Staycations") return section.key === "staycation";
+          if (activeCategory === "Feels") return section.key === "feels";
+          if (activeCategory === "Hiking/Trekking") return section.key === "hiking";
+          return true;
+  });
+
   const [activeImageIndex, setActiveImageIndex] = useState({});
 
-  const menuRef = useRef(null);
-  const router = useRouter();
-
   const today = new Date();
-
   const minDate = new Date(
     today.getFullYear() - 100,
     today.getMonth(),
     today.getDate()
   );
-
   const maxDate = new Date(
     today.getFullYear(),
     today.getMonth(),
     today.getDate() - 1 
   );
-
 
   const clearAuthStates = () => {
     setEmail("");
@@ -98,88 +110,6 @@ export default function HomeScreen() {
     setError("");
     setStep("email");
   };
-
-  // const sendPhoneOtp = async () => {
-  //   if (!phone || phone.trim().length < 10) {
-  //     setError("Enter valid phone number");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     setError("");
-
-  //     const formattedPhone = phone.startsWith("+")
-  //       ? phone
-  //       : `+91${phone}`;
-
-  //     const { error } = await client.auth.signInWithOtp({
-  //       phone: formattedPhone,
-  //     });
-
-  //     if (error) {
-  //       setError(error.message);
-  //       return;
-  //     }
-
-  //     setStep("phone-otp");
-
-  //   } catch (err) {
-  //     setError("Something went wrong. Try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const verifyPhoneOtp = async () => {
-  //   if (!otp || otp.length < 4) {
-  //     setError("Enter valid OTP");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     setError("");
-
-  //     const formattedPhone = phone.startsWith("+")
-  //       ? phone
-  //       : `+91${phone}`;
-
-  //     const { data, error } = await client.auth.verifyOtp({
-  //       phone: formattedPhone,
-  //       token: otp,
-  //       type: "sms",
-  //     });
-
-  //     if (error) {
-  //       setError(error.message);
-  //       return;
-  //     }
-
-  //     if (!data?.user) {
-  //       setError("User verification failed");
-  //       return;
-  //     }
-
-  //     const { data: sessionData } = await client.auth.getSession();
-
-  //     if (!sessionData?.session) {
-  //       setError("Session not created");
-  //       return;
-  //     }
-
-  //     await handlePostAuth(data.user);
-
-  //     setOpenLogin(false);
-
-  //     router.replace("/home");
-
-  //   } catch (err) {
-  //     setError("Verification failed. Try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const sendPhoneOtp = async () => {
     if (!phone || phone.trim().length < 10) {
@@ -278,7 +208,6 @@ export default function HomeScreen() {
       setGoogleLoading(false);
     }
   };
-
 
   const sendEmailOtp = async () => {
     if (!email) return;
@@ -544,7 +473,6 @@ export default function HomeScreen() {
 
     router.replace("/"); 
   };
-
 
   useEffect(() => {
     const checkExistingSession = async () => {
@@ -863,166 +791,177 @@ export default function HomeScreen() {
       <section className="mx-auto mt-4 max-w-7xl px-5 md:px-5 space-y-5">
 
         {[
-          { title: "Popular for you in Kerala", key: null },
-          { title: "Staycation in Kerala", key: null },
-          { title: "Feels - Experience - driven Stays", key: null },
+          { title: "Popular for you in Kerala", key: "all" },
+          { title: "Staycation in Kerala", key: "staycation" },
+          { title: "Feels - Experience - driven Stays", key: "feels" },
           { title: "Hiking/Trekking for you", key: "hiking" },
-        ].map((section, idx) => {
+        ]
+          // CATEGORY FILTER
+          .filter((section) => {
+            if (activeCategory === "All") return true;
+            if (activeCategory === "Staycations") return section.key === "staycation";
+            if (activeCategory === "Feels") return section.key === "feels";
+            if (activeCategory === "Hiking/Trekking") return section.key === "hiking";
+            return true;
+          })
 
-          //  FILTER DATA
-          const filteredProperties = (properties || []).filter(
-            (item) => item.property_type === section.key
-          );
+          .map((section, idx) => {
 
-          return (
-            <div key={idx}>
+            // FIXED FILTER LOGIC
+             const filteredProperties =
+              section.key === "all"
+                ? (properties || []).filter((item) => item.property_type !== "hiking")
+                : (properties || []).filter(
+                    (item) => item.property_type === section.key
+                  );
 
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <h1 className="text-base font-bold sm:text-lg lg:text-xl">
-                  {section.title}
-                </h1>
+                return (
+                  <div key={idx}>
 
-                <button className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7]  hover:bg-zinc-100 transition">
-                  <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
-                </button>
-              </div>
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <h1 className="text-base font-bold sm:text-lg lg:text-xl">
+                        {section.title}
+                      </h1>
 
-              {/* Cards */}
-              <div className="mt-4 flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+                      <button className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] hover:bg-zinc-100 transition">
+                        <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
+                      </button>
+                    </div>
 
-                {filteredProperties.length > 0 ? (
-                  filteredProperties.map((item, i) => {
+                    {/* Cards */}
+                    <div className={`
+                      mt-4 flex gap-3 no-scrollbar
+                      overflow-x-auto snap-x snap-mandatory
+                      ${activeCategory !== "All" ? "md:flex-row flex-col md:overflow-x-auto overflow-visible" : ""}
+                    `}>
+                      {filteredProperties.length > 0 ? (
+                        filteredProperties.map((item, i) => {
 
-                    const coverImage = item.property_images?.find(
-                      (img) => img.is_cover === true
-                    );
+                          const isHiking = section.key === "hiking";
 
-                    const isHiking = section.key === "hiking";
+                          return (
+                            <div
+                              key={item.id || i}
+                              className={`
+                               ${activeCategory === "All"
+                                  ? "min-w-[45%] sm:min-w-[30%] lg:min-w-[23%]"   
+                                  : "w-full md:min-w-[30%] lg:min-w-[23%]"       
+                                }
+                                cursor-pointer overflow-hidden
+                              `}
+                            >
+                              
+                              {/* Image */}
+                              <div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
 
-                    return (
-                      <div
-                        key={item.id || i}
-                        className="
-                          min-w-[45%] 
-                          sm:min-w-[30%] 
-                          lg:min-w-[23%] 
-                          cursor-pointer overflow-hidden"
-                      >
-                        
-                        {/* Image */}
-                        <div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
-                          
-                          {/* Images Slider */}
-                          <div
-                            className="flex h-full w-full overflow-x-auto snap-x snap-proximity no-scrollbar scroll-smooth"
-                            onScroll={(e) => {
-                              const scrollLeft = e.target.scrollLeft;
-                              const width = e.target.clientWidth;
-                              const index = Math.round(scrollLeft / width);
+                                <div
+                                  className="flex h-full w-full overflow-x-auto snap-x snap-proximity no-scrollbar scroll-smooth"
+                                  onScroll={(e) => {
+                                    const scrollLeft = e.target.scrollLeft;
+                                    const width = e.target.clientWidth;
+                                    const index = Math.round(scrollLeft / width);
 
-                              setActiveImageIndex((prev) => ({
-                                ...prev,
-                                [item.id]: index,
-                              }));
-                            }}
-                          >
-                            
-                            {(item.property_images || []).map((img, index) => (
-                              <img
-                                key={index}
-                                src={img.image_url}
-                                alt="property"
-                                className="w-full h-full object-cover flex-shrink-0 snap-start"
-                              />
-                            ))}
+                                    setActiveImageIndex((prev) => ({
+                                      ...prev,
+                                      [item.id]: index,
+                                    }));
+                                  }}
+                                >
+                                  {(item.property_images || []).map((img, index) => (
+                                    <img
+                                      key={index}
+                                      src={img.image_url}
+                                      alt="property"
+                                      className="w-full h-full object-cover flex-shrink-0 snap-start"
+                                    />
+                                  ))}
+                                </div>
 
-                          </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-[5] pointer-events-none" />
 
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-[5] pointer-events-none" />
-                          
-                          {/* Wishlist */}
-                          <button className="absolute top-2 right-2 z-10">
-                            <Heart size={18} className="text-white drop-shadow-md" />
-                          </button>
-
-                          {/* Rating */}
-                          <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
-                            <Star size={12} className="fill-white text-white" />
-                            <span>4.9</span>
-                          </div>
-
-                          {/* Dots Indicator */}
-                          <div className="absolute bottom-2 right-2 z-10 flex gap-1">
-                            {(item.property_images || []).map((_, dotIndex) => (
-                              <span
-                                key={dotIndex}
-                                className={`h-[5px] w-[5px] rounded-full ${
-                                  (activeImageIndex[item.id] ?? 0) === dotIndex
-                                    ? "bg-white"
-                                    : "bg-white/50"
-                                }`}
-                              />
-                            ))}
-                          </div>
-
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-1">
-
-                          {isHiking ? (
-                            <>
-                              <p className="mt-1 text-[#000000] font-inter font-regular text-[11px]  tracking-[0.06px]">
-                                Available from {item.available_from || "N/A"}
-                              </p>
-
-                              <h3 className="mt-2 text-[11px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
-                                {item.title || "No Title"}
-                              </h3>
-
-                              <div className="flex items-center justify-between mt-2">
-                                <p className="text-[11px] font-inter font-medium leading-[140%] text-[#2E4454]">
-                                  ₹{item.price_per_night || "0"} / head
-                                </p>
-
-                                <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
-                                  Fast Filling
+                                {/* Wishlist */}
+                                <button className="absolute top-2 right-2 z-10">
+                                  <Heart size={18} className="text-white drop-shadow-md" />
                                 </button>
+
+                                {/* Rating */}
+                                <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
+                                  <Star size={12} className="fill-white text-white" />
+                                  <span>4.9</span>
+                                </div>
+
+                                {/* Dots */}
+                                <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+                                  {(item.property_images || []).map((_, dotIndex) => (
+                                    <span
+                                      key={dotIndex}
+                                      className={`h-[5px] w-[5px] rounded-full ${
+                                        (activeImageIndex[item.id] ?? 0) === dotIndex
+                                          ? "bg-white"
+                                          : "bg-white/50"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+
                               </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="mt-1 flex items-center gap-2 text-zinc-500 font-inter font-normal text-[11px] tracking-[0.06px]">
-                                <Tent size={13} className="text-zinc-500" /> 
-                                <span>{item.property_category || "Individual Property"}</span>
+
+                              {/* Content */}
+                              <div className="p-1">
+
+                                {isHiking ? (
+                                  <>
+                                    <p className="mt-1 text-[11px]">
+                                      Available from {item.available_from || "N/A"}
+                                    </p>
+
+                                    <h3 className="mt-2 text-[11px] font-bold line-clamp-2">
+                                      {item.title || "No Title"}
+                                    </h3>
+
+                                    <div className="flex items-center justify-between mt-2">
+                                      <p className="text-[11px]">
+                                        ₹{item.price_per_night || "0"} / head
+                                      </p>
+
+                                      <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
+                                        Fast Filling
+                                      </button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-500">
+                                      <Tent size={13} />
+                                      <span>{item.property_category || "Individual Property"}</span>
+                                    </div>
+
+                                    <h3 className="mt-2 text-[11px] font-bold line-clamp-2">
+                                      {item.title || "No Title"}, {item.location}
+                                    </h3>
+
+                                    <p className="mt-2 text-[11px]">
+                                      ₹{item.price_per_night || "0"} for {item.duration}
+                                    </p>
+                                  </>
+                                )}
+
                               </div>
 
-                              <h3 className="mt-2 text-[11px] font-inter font-bold leading-[140%] tracking-[0px] text-[#000000] line-clamp-2">
-                                {item.title || "No Title"}, {item.location}
-                              </h3>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-sm text-zinc-400 px-2">
+                          No properties found
+                        </p>
+                      )}
 
-                              <p className="mt-2 text-[11px] font-inter font-medium leading-[140%] text-[#2E4454]">
-                                ₹{item.price_per_night || "0"} for {item.duration}
-                              </p>
-                            </>
-                          )}
-
-                        </div>
-
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-sm text-zinc-400 px-2">
-                    No properties found
-                  </p>
-                )}
-
-              </div>
-            </div>
-          );
-        })}
+                    </div>
+                  </div>
+                  );
+                })}
 
       </section>
 
