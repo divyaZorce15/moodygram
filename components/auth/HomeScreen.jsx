@@ -824,9 +824,14 @@ export default function HomeScreen() {
                         {section.title}
                       </h1>
 
-                      <button className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] hover:bg-zinc-100 transition">
-                        <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
-                      </button>
+                      {activeCategory === "All" && (
+                        <button
+                          onClick={() => setActiveSection(section.key)}
+                          className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] hover:bg-zinc-100 transition"
+                        >
+                          <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
+                        </button>
+                      )}
                     </div>
 
                     {/* Cards */}
