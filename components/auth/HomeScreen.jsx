@@ -26,6 +26,12 @@ import {
   ArrowRight,
   HomeIcon,
   LandPlot,
+  ArrowLeft,
+  FilterIcon,
+  ArrowLeftCircle,
+  AlignLeftIcon,
+  Filter,
+  FilterXIcon,
 } from "lucide-react";
 
 import DatePicker from "react-datepicker";
@@ -71,24 +77,8 @@ export default function HomeScreen() {
     { label: "Hiking/Trekking", icon: Mountain },
   ];
 
-  const allSections = [
-    { title: "Popular for you in Kerala", key: "all" },
-    { title: "Staycation in Kerala", key: "staycation" },
-    { title: "Feels - Experience - driven Stays", key: "feels" },
-    { title: "Hiking/Trekking for you", key: "hiking" },
-  ];
-
-  const visibleSections =
-    activeCategory === "all"
-      ? allSections
-      : allSections.filter((section) => {
-          if (activeCategory === "Staycations") return section.key === "staycation";
-          if (activeCategory === "Feels") return section.key === "feels";
-          if (activeCategory === "Hiking/Trekking") return section.key === "hiking";
-          return true;
-  });
-
   const [activeImageIndex, setActiveImageIndex] = useState({});
+  const [activeSection, setActiveSection] = useState(null);
 
   const today = new Date();
   const minDate = new Date(
@@ -554,420 +544,462 @@ export default function HomeScreen() {
     <div className="w-full min-h-screen bg-white pb-24">
 
       {/* ================= HEADER ================= */}
-      <header className="hidden md:flex sticky top-0 z-50 bg-white mx-auto max-w-7xl items-center justify-between px-4 py-4 md:px-8 md:static">
-        {/* Logo */}
-        <div className="h-9 w-28 cursor-pointer rounded bg-zinc-300" />
+      {!activeSection && (
+        <header className="hidden md:flex sticky top-0 z-50 bg-white mx-auto max-w-7xl items-center justify-between px-4 py-4 md:px-8 md:static">
+          {/* Logo */}
+          <div className="h-9 w-28 cursor-pointer rounded bg-zinc-300" />
 
-        {/* Actions */}
-        <div className="flex items-center gap-6">
-          <button className="hidden md:block cursor-pointer text-sm text-zinc-700">
-            Become a Host
-          </button>
-
-          {!user ? (
-            <button
-              className="cursor-pointer rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white"
-              onClick={resetLoginState}
-            >
-              Login / Sign Up
+          {/* Actions */}
+          <div className="flex items-center gap-6">
+            <button className="hidden md:block cursor-pointer text-sm text-zinc-700">
+              Become a Host
             </button>
-          ) : (
-            <div ref={menuRef} className="relative cursor-pointer">
+
+            {!user ? (
               <button
-                onClick={() => setOpenMenu((v) => !v)}
-                className="flex items-center justify-center rounded-full border bg-white p-2 cursor-pointer"
+                className="cursor-pointer rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white"
+                onClick={resetLoginState}
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white text-sm font-semibold">
-                  {user.user_metadata?.full_name
-                    ? user.user_metadata.full_name[0].toUpperCase()
-                    : user.email?.[0]?.toUpperCase() || "U"}
-                </div>
+                Login / Sign Up
               </button>
-
-              {openMenu && (
-                <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white shadow-lg">
-                  {/* User Info */}
-                  <div className="flex items-center gap-3 border-b px-4 py-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white font-semibold">
-                      {user.user_metadata?.full_name
-                        ? user.user_metadata.full_name[0].toUpperCase()
-                        : user.email?.[0]?.toUpperCase() || "U"}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-zinc-900">
-                        {user.user_metadata?.full_name || "User"}
-                      </p>
-                      <p className="truncate text-xs text-zinc-500">
-                        {user.email || user.phone}
-                      </p>
-                    </div>
+            ) : (
+              <div ref={menuRef} className="relative cursor-pointer">
+                <button
+                  onClick={() => setOpenMenu((v) => !v)}
+                  className="flex items-center justify-center rounded-full border bg-white p-2 cursor-pointer"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white text-sm font-semibold">
+                    {user.user_metadata?.full_name
+                      ? user.user_metadata.full_name[0].toUpperCase()
+                      : user.email?.[0]?.toUpperCase() || "U"}
                   </div>
+                </button>
 
-                  {/* Menu Items */}
-                  <button className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-50 rounded-xl cursor-pointer">
-                    My Profile
-                  </button>
+                {openMenu && (
+                  <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white shadow-lg">
+                    {/* User Info */}
+                    <div className="flex items-center gap-3 border-b px-4 py-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white font-semibold">
+                        {user.user_metadata?.full_name
+                          ? user.user_metadata.full_name[0].toUpperCase()
+                          : user.email?.[0]?.toUpperCase() || "U"}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-zinc-900">
+                          {user.user_metadata?.full_name || "User"}
+                        </p>
+                        <p className="truncate text-xs text-zinc-500">
+                          {user.email || user.phone}
+                        </p>
+                      </div>
+                    </div>
 
-                  <button
-                    onClick={() => {
-                      setOpenMenu(false);
-                      logout();
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-zinc-50 rounded-xl cursor-pointer"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </header>
+                    {/* Menu Items */}
+                    <button className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-50 rounded-xl cursor-pointer">
+                      My Profile
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setOpenMenu(false);
+                        logout();
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-zinc-50 rounded-xl cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </header>
+      )}
 
       {/* ================= HERO ================= */}
-      <section className="relative h-[420px] w-full sm:h-[480px] lg:h-[600px] hidden md:block">
-        <Image
-          src="/hero.jpg"
-          alt="Nature stay"
-          fill
-          priority
-          className="object-cover"
-        />
+      {!activeSection && (
+        <section className="relative h-[420px] w-full sm:h-[480px] lg:h-[600px] hidden md:block">
+          <Image
+            src="/hero.jpg"
+            alt="Nature stay"
+            fill
+            priority
+            className="object-cover"
+          />
 
-        <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/40" />
 
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center text-white">
-          <h1 className="text-2xl font-semibold sm:text-3xl lg:text-4xl">
-            Explore your way into nature
-          </h1>
+          <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center text-white">
+            <h1 className="text-2xl font-semibold sm:text-3xl lg:text-4xl">
+              Explore your way into nature
+            </h1>
 
-          <p className="mt-3 max-w-2xl text-sm text-zinc-200 sm:text-base lg:text-lg">
-            the one of a kind locations that connect with you to nature
-          </p>
+            <p className="mt-3 max-w-2xl text-sm text-zinc-200 sm:text-base lg:text-lg">
+              the one of a kind locations that connect with you to nature
+            </p>
 
-          {/* SEARCH BAR */}
-          <div className="mt-8 max-w-xl sm:max-w-2xl lg:max-w-4xl">
-            <div className="flex items-center gap-3">
+            {/* SEARCH BAR */}
+            <div className="mt-8 max-w-xl sm:max-w-2xl lg:max-w-4xl">
+              <div className="flex items-center gap-3">
 
-              {/* Destination */}
-              <div className="flex flex-1 items-center gap-3 rounded-full bg-white px-5 py-2 text-sm font-medium">
-                <div className="h-5 w-5 rounded-full bg-zinc-300" />
-                <input
-                  placeholder="Search Destinations"
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-500"
-                />
+                {/* Destination */}
+                <div className="flex flex-1 items-center gap-3 rounded-full bg-white px-5 py-2 text-sm font-medium">
+                  <div className="h-5 w-5 rounded-full bg-zinc-300" />
+                  <input
+                    placeholder="Search Destinations"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-500"
+                  />
+                </div>
+
+                {/* People */}
+                <div className="flex flex-1 items-center gap-3 rounded-full bg-white px-5 py-2 text-sm font-medium">
+                  <div className="h-5 w-5 rounded-full bg-zinc-300" />
+                  <input
+                    placeholder="People"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-500"
+                  />
+                </div>
+
+                {/* Search Button */}
+                <button className="ml-2 flex cursor-pointer items-center gap-2 rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white">
+                  <Search size={16} />
+                  Search
+                </button>
               </div>
-
-              {/* People */}
-              <div className="flex flex-1 items-center gap-3 rounded-full bg-white px-5 py-2 text-sm font-medium">
-                <div className="h-5 w-5 rounded-full bg-zinc-300" />
-                <input
-                  placeholder="People"
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-500"
-                />
-              </div>
-
-              {/* Search Button */}
-              <button className="ml-2 flex cursor-pointer items-center gap-2 rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white">
-                <Search size={16} />
-                Search
-              </button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ================= CATEGORIES ================= */}
-      <section className="mx-auto mt-6 mb-6 max-w-2xl px-4 pb-4 sm:mt-8 hidden md:block cursor-pointer">
-        <div className="flex justify-between sm:justify-around cursor-pointer">
-          {categories.map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              onClick={() => setActiveCategory(label)}
-              className="flex flex-col items-center gap-1 text-xs sm:text-sm transition cursor-pointer"
-            >
-              {/* Icon */}
-              <Icon
-                size={28}
-                className={
-                  activeCategory === label
-                    ? "text-[#205107]"
-                    : "text-zinc-400"
-                }
-              />
-
-              {/* Text */}
-              <span
-                className={
-                  activeCategory === label
-                    ? "text-[#205107]"
-                    : "text-zinc-500"
-                }
+      {!activeSection && (
+        <section className="mx-auto mt-6 mb-6 max-w-2xl px-4 pb-4 sm:mt-8 hidden md:block cursor-pointer">
+          <div className="flex justify-between sm:justify-around cursor-pointer">
+            {categories.map(({ label, icon: Icon }) => (
+              <button
+                key={label}
+                onClick={() => setActiveCategory(label)}
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm transition cursor-pointer"
               >
-                {label}
-              </span>
+                {/* Icon */}
+                <Icon
+                  size={28}
+                  className={
+                    activeCategory === label
+                      ? "text-[#205107]"
+                      : "text-zinc-400"
+                  }
+                />
 
-              {/* Underline */}
-              <span
-                className={`mt-1 h-[2px] w-full rounded-full ${
-                  activeCategory === label
-                    ? "bg-[#205107]"
-                    : "bg-[#D9D9D9]"
-                }`}
-              />
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= SEARCH BAR + CATEGORIES (MOBILE ONLY) ================= */}
-      <div className="sticky top-0 z-50 bg-white border-b rounded-b-[25px] shadow-md px-4 pt-3 md:hidden">
-        
-        <div className="max-w-7xl mx-auto flex flex-col gap-3">
-
-          {/* Input Row */}
-          <div className="flex items-center gap-2 mt-3 mb-2">
-            <button className="flex items-center gap-2 w-full h-[44px] bg-[#F7F7F7] border border-[#C6C6C6] rounded-[64px] px-2 py-2 text-sm font-medium">
-              <Search size={16} /> 
-              <span className="text-[#2E4454]">Search</span>
-            </button>
-          </div>
-
-          {/* Categories */}
-          <div className="flex overflow-x-auto no-scrollbar mt-2">
-            <div className="flex gap-6 px-4 min-w-max mx-auto">
-              
-              {categories.map(({ label, icon: Icon }) => (
-                <button
-                  key={label}
-                  onClick={() => setActiveCategory(label)}
-                  className="relative flex flex-col items-center gap-1 pb-3 shrink-0"
+                {/* Text */}
+                <span
+                  className={
+                    activeCategory === label
+                      ? "text-[#205107]"
+                      : "text-zinc-500"
+                  }
                 >
-                  {/* Icon */}
-                  <Icon
-                    size={22}
-                    className={
-                      activeCategory === label
-                        ? "text-[#056300]"
-                        : "text-[#2E4454]"
-                    }
-                  />
+                  {label}
+                </span>
 
-                  {/* Text */}
-                  <span
-                    className={`font-inter text-[13px] tracking-[0.06px] ${
-                      activeCategory === label
-                        ? "text-[#056300]"
-                        : "text-[#2E4454]"
-                    }`}
-                  >
-                    {label}
-                  </span>
+                {/* Underline */}
+                <span
+                  className={`mt-1 h-[2px] w-full rounded-full ${
+                    activeCategory === label
+                      ? "bg-[#205107]"
+                      : "bg-[#D9D9D9]"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
-                  {/* Underline */}
-                  {activeCategory === label && (
-                    <span className="absolute bottom-0 h-[2px] w-full bg-[#056300] rounded-full" />
-                  )}
-                </button>
-              ))}
+      {/* ================= MOBILE TOP AREA ================= */}
+      {/* DEFAULT (Search + Categories) */}
+      {!activeSection && (
+        <div className="sticky top-0 z-50 bg-white border-b rounded-b-[25px] shadow-md px-4 pt-3 md:hidden">
+          
+          <div className="max-w-7xl mx-auto flex flex-col gap-3">
 
+            {/* Input Row */}
+            <div className="flex items-center gap-2 mt-3 mb-2">
+              <button className="flex items-center gap-2 w-full h-[44px] bg-[#F7F7F7] border border-[#C6C6C6] rounded-[64px] px-3 text-sm font-medium">
+                <Search size={16} /> 
+                <span className="text-[#2E4454]">Search</span>
+              </button>
             </div>
+
+            {/* Categories */}
+            <div className="flex overflow-x-auto no-scrollbar mt-2">
+              <div className="flex gap-6 px-2 min-w-max">
+
+                {categories.map(({ label, icon: Icon }) => (
+                  <button
+                    key={label}
+                    onClick={() => setActiveCategory(label)}
+                    className="relative flex flex-col items-center gap-1 pb-3 shrink-0"
+                  >
+                    <Icon
+                      size={22}
+                      className={
+                        activeCategory === label
+                          ? "text-[#056300]"
+                          : "text-[#2E4454]"
+                      }
+                    />
+
+                    <span
+                      className={`text-[13px] ${
+                        activeCategory === label
+                          ? "text-[#056300]"
+                          : "text-[#2E4454]"
+                      }`}
+                    >
+                      {label}
+                    </span>
+
+                    {activeCategory === label && (
+                      <span className="absolute bottom-0 h-[2px] w-full bg-[#056300] rounded-full" />
+                    )}
+                  </button>
+                ))}
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* BANNER */}
+      {!activeSection && (
+        <div className="relative w-[91%] max-w-sm h-36 mx-auto my-5 rounded-xl overflow-hidden shadow-md md:hidden">
+          <Image
+            src="/hero.jpg"
+            alt="Nature stay"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
+      )}
+
+     {activeSection && (
+        <div className="sticky top-0 z-50 bg-white border-b rounded-b-[25px] shadow-md px-4 py-5 flex items-center gap-3">
+
+          {/* Back */}
+          <button
+            onClick={() => setActiveSection(null)}
+            className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] border border-[#C6C6C6]  hover:bg-zinc-100 transition"
+          >
+            <ArrowLeft size={16} strokeWidth={3} className="text-[#2E4454]" />
+          </button>
+
+          <div className="flex-1 md:flex-none md:w-[320px] lg:w-[360px]">
+            <button className="flex items-center gap-2 w-full h-8 bg-[#F7F7F7] border border-[#C6C6C6] rounded-[64px] px-3 py-4 text-sm font-medium">
+              <Search size={16} />
+              <span className="text-[#2E4454]">Search a destination</span>
+            </button>
           </div>
 
+          {/* Filter */}
+          <button className="flex items-center justify-center h-8 w-8 bg-[#F7F7F7] border border-[#C6C6C6] rounded-full">
+            <FilterIcon size={16} className="text-[#2E4454]" />
+          </button>
+
         </div>
-      </div>
-      {/* Mobile Banner */}
-      <div className="relative w-[91%] max-w-sm h-36 mx-auto my-5 rounded-xl overflow-hidden shadow-md  md:hidden ">
-        <Image
-          src="/hero.jpg"
-          alt="Nature stay"
-          fill
-          priority
-          className="object-cover"
-        />
-      </div>
+      )}
+      
 
       {/* ================= CONTENT SECTION ================= */}
       <section className="mx-auto mt-4 max-w-7xl px-5 md:px-5 space-y-5">
-
         {[
           { title: "Popular for you in Kerala", key: "all" },
           { title: "Staycation in Kerala", key: "staycation" },
           { title: "Feels - Experience - driven Stays", key: "feels" },
           { title: "Hiking/Trekking for you", key: "hiking" },
         ]
-          // CATEGORY FILTER
+
           .filter((section) => {
-            if (activeCategory === "All") return true;
-            if (activeCategory === "Staycations") return section.key === "staycation";
-            if (activeCategory === "Feels") return section.key === "feels";
-            if (activeCategory === "Hiking/Trekking") return section.key === "hiking";
+            if (activeSection) return section.key === activeSection;
             return true;
           })
 
           .map((section, idx) => {
 
-            // FIXED FILTER LOGIC
-             const filteredProperties =
+            const filteredProperties =
               section.key === "all"
                 ? (properties || []).filter((item) => item.property_type !== "hiking")
                 : (properties || []).filter(
                     (item) => item.property_type === section.key
                   );
 
-                return (
-                  <div key={idx}>
+            return (
+              <div key={idx}>
 
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <h1 className="text-base font-bold sm:text-lg lg:text-xl">
-                        {section.title}
-                      </h1>
+                {/* Header */}
+                <div className={`flex items-center ${activeSection ? "justify-center" : "justify-between"}`}>
+                  
+                  <h1 className="text-base font-bold sm:text-lg lg:text-xl text-center">
+                    {section.title}
+                  </h1>
 
-                      {activeCategory === "All" && (
-                        <button
-                          onClick={() => setActiveSection(section.key)}
-                          className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] hover:bg-zinc-100 transition"
+                  {/* Arrow hide when activeSection */}
+                  {!activeSection && (
+                    <button
+                      onClick={() => setActiveSection(section.key)}
+                      className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] hover:bg-zinc-100 transition"
+                    >
+                      <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Cards */}
+                <div
+                  className={`
+                    mt-4 gap-3 no-scrollbar
+                    ${
+                      activeSection
+                        ? "flex flex-col md:flex-row md:overflow-x-auto md:snap-x md:snap-mandatory"
+                        : "flex overflow-x-auto snap-x snap-mandatory"
+                    }
+                  `}
+                >
+                  {filteredProperties.length > 0 ? (
+                    filteredProperties.map((item, i) => {
+
+                      const isHiking = section.key === "hiking";
+
+                      return (
+                        <div
+                          key={item.id || i}
+                          className={`
+                            cursor-pointer overflow-hidden 
+                            ${activeSection 
+                              ? "w-full" 
+                              : "min-w-[45%] sm:min-w-[30%] lg:min-w-[23%]"
+                            }
+                          `}
                         >
-                          <ArrowRight size={16} strokeWidth={3} className="text-[#2E4454]" />
-                        </button>
-                      )}
-                    </div>
 
-                    {/* Cards */}
-                    <div className={`
-                      mt-4 flex gap-3 no-scrollbar
-                      overflow-x-auto snap-x snap-mandatory
-                      ${activeCategory !== "All" ? "md:flex-row flex-col md:overflow-x-auto overflow-visible" : ""}
-                    `}>
-                      {filteredProperties.length > 0 ? (
-                        filteredProperties.map((item, i) => {
+                          {/* Image */}
+                          <div
+                            className={`
+                              relative overflow-hidden rounded-lg
+                              ${activeSection ? "h-[200px]" : "h-40 sm:h-44 lg:h-48"}
+                            `}
+                          >
 
-                          const isHiking = section.key === "hiking";
-
-                          return (
                             <div
-                              key={item.id || i}
-                              className={`
-                               ${activeCategory === "All"
-                                  ? "min-w-[45%] sm:min-w-[30%] lg:min-w-[23%]"   
-                                  : "w-full md:min-w-[30%] lg:min-w-[23%]"       
-                                }
-                                cursor-pointer overflow-hidden
-                              `}
+                              className="flex h-full w-full overflow-x-auto snap-x snap-proximity no-scrollbar scroll-smooth"
+                              onScroll={(e) => {
+                                const scrollLeft = e.target.scrollLeft;
+                                const width = e.target.clientWidth;
+                                const index = Math.round(scrollLeft / width);
+
+                                setActiveImageIndex((prev) => ({
+                                  ...prev,
+                                  [item.id]: index,
+                                }));
+                              }}
                             >
-                              
-                              {/* Image */}
-                              <div className="relative h-40 sm:h-44 lg:h-48 overflow-hidden rounded-lg">
-
-                                <div
-                                  className="flex h-full w-full overflow-x-auto snap-x snap-proximity no-scrollbar scroll-smooth"
-                                  onScroll={(e) => {
-                                    const scrollLeft = e.target.scrollLeft;
-                                    const width = e.target.clientWidth;
-                                    const index = Math.round(scrollLeft / width);
-
-                                    setActiveImageIndex((prev) => ({
-                                      ...prev,
-                                      [item.id]: index,
-                                    }));
-                                  }}
-                                >
-                                  {(item.property_images || []).map((img, index) => (
-                                    <img
-                                      key={index}
-                                      src={img.image_url}
-                                      alt="property"
-                                      className="w-full h-full object-cover flex-shrink-0 snap-start"
-                                    />
-                                  ))}
-                                </div>
-
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-[5] pointer-events-none" />
-
-                                {/* Wishlist */}
-                                <button className="absolute top-2 right-2 z-10">
-                                  <Heart size={18} className="text-white drop-shadow-md" />
-                                </button>
-
-                                {/* Rating */}
-                                <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
-                                  <Star size={12} className="fill-white text-white" />
-                                  <span>4.9</span>
-                                </div>
-
-                                {/* Dots */}
-                                <div className="absolute bottom-2 right-2 z-10 flex gap-1">
-                                  {(item.property_images || []).map((_, dotIndex) => (
-                                    <span
-                                      key={dotIndex}
-                                      className={`h-[5px] w-[5px] rounded-full ${
-                                        (activeImageIndex[item.id] ?? 0) === dotIndex
-                                          ? "bg-white"
-                                          : "bg-white/50"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-
-                              </div>
-
-                              {/* Content */}
-                              <div className="p-1">
-
-                                {isHiking ? (
-                                  <>
-                                    <p className="mt-1 text-[11px]">
-                                      Available from {item.available_from || "N/A"}
-                                    </p>
-
-                                    <h3 className="mt-2 text-[11px] font-bold line-clamp-2">
-                                      {item.title || "No Title"}
-                                    </h3>
-
-                                    <div className="flex items-center justify-between mt-2">
-                                      <p className="text-[11px]">
-                                        ₹{item.price_per_night || "0"} / head
-                                      </p>
-
-                                      <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
-                                        Fast Filling
-                                      </button>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-500">
-                                      <Tent size={13} />
-                                      <span>{item.property_category || "Individual Property"}</span>
-                                    </div>
-
-                                    <h3 className="mt-2 text-[11px] font-bold line-clamp-2">
-                                      {item.title || "No Title"}, {item.location}
-                                    </h3>
-
-                                    <p className="mt-2 text-[11px]">
-                                      ₹{item.price_per_night || "0"} for {item.duration}
-                                    </p>
-                                  </>
-                                )}
-
-                              </div>
-
+                              {(item.property_images || []).map((img, index) => (
+                                <img
+                                  key={index}
+                                  src={img.image_url}
+                                  alt="property"
+                                  className="w-full h-full object-cover flex-shrink-0 snap-start"
+                                />
+                              ))}
                             </div>
-                          );
-                        })
-                      ) : (
-                        <p className="text-sm text-zinc-400 px-2">
-                          No properties found
-                        </p>
-                      )}
 
-                    </div>
-                  </div>
-                  );
-                })}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-[5] pointer-events-none" />
 
+                            {/* Wishlist */}
+                            <button className="absolute top-2 right-2 z-10">
+                              <Heart size={18} className="text-white drop-shadow-md" />
+                            </button>
+
+                            {/* Rating */}
+                            <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 text-white text-xs drop-shadow-md">
+                              <Star size={12} className="fill-white text-white" />
+                              <span>4.9</span>
+                            </div>
+
+                            {/* Dots */}
+                            <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+                              {(item.property_images || []).map((_, dotIndex) => (
+                                <span
+                                  key={dotIndex}
+                                  className={`h-[5px] w-[5px] rounded-full ${
+                                    (activeImageIndex[item.id] ?? 0) === dotIndex
+                                      ? "bg-white"
+                                      : "bg-white/50"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+
+                          </div>
+
+                          {/* Content */}
+                          <div className="p-1">
+
+                            {isHiking ? (
+                              <>
+                                <p className="mt-1 text-[11px]">
+                                  Available from {item.available_from || "N/A"}
+                                </p>
+
+                                <h3 className="mt-2 text-[11px] font-bold line-clamp-2">
+                                  {item.title || "No Title"}
+                                </h3>
+
+                                <div className="flex items-center justify-between mt-2">
+                                  <p className="text-[11px]">
+                                    ₹{item.price_per_night || "0"} / head
+                                  </p>
+
+                                  <button className="bg-[#A4133C] text-white text-[10px] px-2 py-1 rounded-xl">
+                                    Fast Filling
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-500">
+                                  <Tent size={13} />
+                                  <span>{item.property_category || "Individual Property"}</span>
+                                </div>
+
+                                <h3 className="mt-2 text-[11px] font-bold line-clamp-2">
+                                  {item.title || "No Title"}, {item.location}
+                                </h3>
+
+                                <p className="mt-2 text-[11px]">
+                                  ₹{item.price_per_night || "0"} for {item.duration}
+                                </p>
+                              </>
+                            )}
+
+                          </div>
+
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-zinc-400 px-2">
+                      No properties found
+                    </p>
+                  )}
+                </div>
+
+              </div>
+            );
+          })}
       </section>
 
       {/* ================= BOTTOM NAV (MOBILE ONLY) ================= */}
