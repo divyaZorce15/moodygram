@@ -792,20 +792,20 @@ export default function HomeScreen() {
           {/* Back */}
           <button
             onClick={() => setActiveSection(null)}
-            className="flex items-center justify-center h-8 w-8 rounded-full bg-[#F7F7F7] border border-[#C6C6C6]  hover:bg-zinc-100 transition"
+            className="flex items-center justify-center h-[44px] w-[44px] rounded-full bg-[#F7F7F7] border border-[#C6C6C6]  hover:bg-zinc-100 transition"
           >
             <ArrowLeft size={16} strokeWidth={3} className="text-[#2E4454]" />
           </button>
 
           <div className="flex-1 md:flex-none md:w-[320px] lg:w-[360px]">
-            <button className="flex items-center gap-2 w-full h-8 bg-[#F7F7F7] border border-[#C6C6C6] rounded-[64px] px-3 py-4 text-sm font-medium">
+            <button className="flex items-center gap-2 w-full h-[44px] bg-[#F7F7F7] border border-[#C6C6C6] rounded-[64px] px-3 py-4 text-sm font-medium">
               <Search size={16} />
               <span className="text-[#2E4454]">Search a destination</span>
             </button>
           </div>
 
           {/* Filter */}
-          <button className="flex items-center justify-center h-8 w-8 bg-[#F7F7F7] border border-[#C6C6C6] rounded-full">
+          <button className="flex items-center justify-center h-[44px] w-[44px] bg-[#F7F7F7] border border-[#C6C6C6] rounded-full">
             <FilterIcon size={16} className="text-[#2E4454]" />
           </button>
 
