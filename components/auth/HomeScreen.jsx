@@ -732,14 +732,14 @@ export default function HomeScreen() {
             </div>
 
             {/* Categories */}
-            <div className="flex overflow-x-auto no-scrollbar mt-2">
-              <div className="flex gap-6 px-2 min-w-max">
+            <div className="mt-2">
+              <div className="flex justify-between items-center px-2">
 
                 {categories.map(({ label, icon: Icon }) => (
                   <button
                     key={label}
                     onClick={() => setActiveCategory(label)}
-                    className="relative flex flex-col items-center gap-1 pb-3 shrink-0"
+                    className="flex flex-col items-center gap-1 pb-3"
                   >
                     <Icon
                       size={22}
@@ -760,9 +760,13 @@ export default function HomeScreen() {
                       {label}
                     </span>
 
-                    {activeCategory === label && (
-                      <span className="absolute bottom-0 h-[2px] w-full bg-[#056300] rounded-full" />
-                    )}
+                    <span
+                      className={`h-[2px] w-full rounded-full mt-1 ${
+                        activeCategory === label
+                          ? "bg-[#056300]"
+                          : "bg-transparent"
+                      }`}
+                    />
                   </button>
                 ))}
 
