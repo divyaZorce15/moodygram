@@ -15,7 +15,7 @@ export default function Slider({ property }) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col">
+    <div className="w-full h-screen bg-white flex flex-col">
 
       {/* Image Section */}
       <div className="relative h-72 w-full overflow-x-hidden rounded-b-[35px]">
@@ -91,7 +91,7 @@ export default function Slider({ property }) {
       </div>
 
       {/* Content */}
-      <div className="p-4 flex-1">
+      <div className="p-4 flex-1 overflow-y-auto">
 
         <h1 className="text-lg font-semibold text-center">
           {property.title || "No Title"}
@@ -112,7 +112,7 @@ export default function Slider({ property }) {
       </div>
 
       {/* Bottom Price Section */}
-      <div className="p-4 border-t flex items-center justify-between">
+      <div className="p-4 border-t flex items-center justify-between sticky bottom-0 bg-white z-20">
 
         <div>
           <p className="font-semibold text-sm">
