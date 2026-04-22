@@ -79,6 +79,7 @@ export default function HomeScreen() {
 
   const [activeImageIndex, setActiveImageIndex] = useState({});
   const [activeSection, setActiveSection] = useState(null);
+  const [selectedProperty, setSelectedProperty] = useState(null);
 
   const today = new Date();
   const minDate = new Date(
@@ -887,6 +888,10 @@ export default function HomeScreen() {
                               : "min-w-[45%] sm:min-w-[30%] lg:min-w-[23%]"
                             }
                           `}
+                          onClick={() => {
+                            console.log("ID:", item.id);
+                            router.push(`/property/${item.id}`);
+                          }}
                         >
 
                           {/* Image */}
