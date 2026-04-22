@@ -18,7 +18,7 @@ export default function Slider({ property }) {
     <div className="w-full min-h-screen bg-white flex flex-col">
 
       {/* Image Section */}
-      <div className="relative h-12 w-full overflow-x-hidden rounded-b-[35px]">
+      <div className="relative h-72 w-full overflow-x-hidden rounded-b-[35px]">
 
         {/* Slider */}
         <div
