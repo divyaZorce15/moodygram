@@ -112,8 +112,7 @@ export default function Slider({ property }) {
       </div>
 
       {/* Bottom Price Section */}
-      <div className="p-4 border-t flex items-center justify-between sticky bottom-0 bg-white z-20">
-
+      <div className="p-4 border-t flex items-center justify-between sticky bottom-0 bg-white z-20 shadow-md">
         <div>
           <p className="font-semibold text-sm">
             ₹ {property.price_per_night || 0}
