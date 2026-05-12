@@ -344,7 +344,7 @@ export default function AvailabilityModal({
         </div>
 
         {/* FIXED FOOTER */}
-        {selectedDates.length > 0 && (
+        {selectedDates.length === 2  && (
           <div
             className="
               shrink-0
